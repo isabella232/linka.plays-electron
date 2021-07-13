@@ -23,7 +23,7 @@ export default class CatchButterfly extends Vue {
   static title = "Поймай бабочку";
   static description = "...";
   point: Vector ={x: 20, y: 30 };
-  hitBoxSize = 100;
+  hitBoxSize = 50;
   created() {
     document.addEventListener("tobii.point", (e) => {
       const data = (e as any).detail as GazeData;
