@@ -1,6 +1,7 @@
 // import { Game  from "./Game.vue";
 import { VueConstructor } from "vue";
 import Butterfly from "./Butterfly/Butterfly.vue";
+import CatchButterfly from "./CatchButterfly/CatchButterfly.vue";
 import TicTacToe from "./TicTacToe/TicTacToe.vue";
 export class GamesManifest {
     private static _instance: GamesManifest|null;
@@ -13,6 +14,7 @@ export class GamesManifest {
 
     games = [
         Butterfly,
+        CatchButterfly,
         TicTacToe
     ];
 
