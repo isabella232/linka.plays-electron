@@ -50,6 +50,7 @@ section {
 }
 .butterfly {
   position: absolute;
+  transform: translate(-50%, -50%);
   width: 50px;
   height: 50px;
 }
