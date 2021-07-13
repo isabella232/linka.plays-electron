@@ -31,7 +31,7 @@ export default class Butterfly extends Vue {
       const rect = this.$el.getBoundingClientRect();
       this.points.push({
         x: data.x - rect.x,
-        y: data.x - rect.x,
+        y: data.y - rect.y,
       });
       setTimeout(() => {
         this.points.shift();
