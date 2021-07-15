@@ -15,10 +15,12 @@
 import { GazeData } from "tobiiee/build/GazeData";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Game } from "../Game.vue";
+import { Game } from "../Game";
 import { Vector } from "../../Vector";
 
-@Component
+@Component({
+  mixins:[Game]
+})
 export default class Butterfly extends Vue {
   static id = "Butterfly";
   static title = "Бабочки";

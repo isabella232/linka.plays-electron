@@ -13,7 +13,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/game/:gameid',
-    name: 'Home',
+    name: 'Game',
     component: GameViewer
   }
 ]

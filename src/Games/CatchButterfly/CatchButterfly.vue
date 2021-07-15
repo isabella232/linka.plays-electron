@@ -13,12 +13,15 @@
 <script lang="ts">
 import { GazeData } from "tobiiee/build/GazeData";
 import Vue from "vue";
-import Component from "vue-class-component";
-import { Game } from "../Game.vue";
+import Component, { mixins } from "vue-class-component";
+import { Game } from "../Game";
 import { Vector } from "../../Vector";
+import { mixin } from "vue/types/umd";
 
-@Component
-export default class CatchButterfly extends Vue {
+@Component({
+  mixins:[Game]
+})
+export default class CatchButterfly extends Game {
   static id = "CatchButterfly";
   static title = "Поймай бабочку";
   static description = "...";
@@ -42,6 +45,7 @@ export default class CatchButterfly extends Vue {
     const x = Math.random()*this.$el.clientWidth*0.5+200;
     const y = Math.random()*this.$el.clientHeight*0.5+200;
     this.point = {x, y};
+    (this as unknown as Game).addPoint()
   }
 }
 </script>

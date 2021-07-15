@@ -22,7 +22,7 @@
     </v-app-bar>
 
     <v-main>
-      <v-container class="">
+      <v-container :class="{'game-container':!mainPage}">
         <router-view />
       </v-container>
     </v-main>
@@ -43,11 +43,18 @@ export default Vue.extend({
       mainPage: this.$router.currentRoute.path === "/",
     };
   },
-  created(){
-    this.$router
-    .afterEach(()=>[
-      this.mainPage = this.$router.currentRoute.path === "/"
-    ])
-  }
+  created() {
+    this.$router.afterEach(() => [
+      (this.mainPage = this.$router.currentRoute.path === "/"),
+    ]);
+  },
 });
 </script>
+
+<style scoped>
+.game-container {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+</style>

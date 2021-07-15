@@ -1,4 +1,3 @@
-// import { Game  from "./Game.vue";
 import { VueConstructor } from "vue";
 import Butterfly from "./Butterfly/Butterfly.vue";
 import CatchButterfly from "./CatchButterfly/CatchButterfly.vue";

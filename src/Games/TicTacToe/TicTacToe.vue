@@ -7,7 +7,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Game } from "../Game.vue";
+import { Game } from "../Game";
 
 @Component
 export default class TicTacToe extends Vue {
