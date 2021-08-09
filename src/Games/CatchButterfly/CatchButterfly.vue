@@ -51,6 +51,9 @@ export default class CatchButterfly extends Game {
     });
   }
   hit() {
+    if(!this.butterflyVisible){
+      return
+    }
     this.butterflyVisible = false;
     setTimeout(() => {
       this.butterflyVisible = true;
