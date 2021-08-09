@@ -22,8 +22,8 @@
     </v-app-bar>
 
     <v-main>
-      <v-container :class="{'game-container':!mainPage}">
-        <router-view />
+      <v-container :class="{ 'game-container': !mainPage }">
+        <router-view @stepChanged="(step) => (this.step = step)" />
       </v-container>
     </v-main>
   </v-app>
@@ -31,24 +31,26 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Component from "vue-class-component";
 import GazePoint from "./components/GazePoint.vue";
-
-export default Vue.extend({
-  name: "App",
+@Component({
   components: {
     GazePoint,
   },
-  data() {
-    return {
-      mainPage: this.$router.currentRoute.path === "/",
-    };
-  },
+})
+export default class App extends Vue {
+  mainPage = this.$router.currentRoute.path === "/";
+  gameInfo = {
+step: 0,
+points: 0,
+title: null
+  }
   created() {
-    this.$router.afterEach(() => [
-      (this.mainPage = this.$router.currentRoute.path === "/"),
-    ]);
-  },
-});
+    this.$router.afterEach(() => {
+      this.mainPage = this.$router.currentRoute.path === "/";
+    });
+  }
+}
 </script>
 
 <style scoped>
