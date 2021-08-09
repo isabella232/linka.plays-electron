@@ -1,6 +1,6 @@
 <template>
   <div class="GameView">
-    <component :is="game" />
+    <component :is="game" @pointChanged="(points)=>$emit('pointChanged', points)"  @stepChanged="(points)=>$emit('stepChanged', points)"  />
   </div>
 </template>
 

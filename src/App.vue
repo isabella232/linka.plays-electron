@@ -22,9 +22,9 @@
     </v-app-bar>
 
     <v-main>
-      <v-container :class="{ 'game-container': !mainPage }">
+      <component :is="mainPage?'v-container':'div'" :class="{ 'game-container': !mainPage }">
         <router-view @stepChanged="(step) => (this.step = step)" />
-      </v-container>
+      </component>
     </v-main>
   </v-app>
 </template>
@@ -56,6 +56,7 @@ title: null
 <style scoped>
 .game-container {
   height: 100%;
+  width: 100%;
   padding: 0;
   overflow: hidden;
 }
