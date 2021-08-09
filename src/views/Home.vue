@@ -3,8 +3,8 @@
     <h1>Игры</h1>
     <v-container>
       <v-row>
-        <v-col cols="4">
-          <v-card v-for="game of games" :key="game.id">
+        <v-col cols="4" v-for="game of games" :key="game.id" >
+          <v-card >
             <v-card-title primary-title> {{ game.title }} </v-card-title>
             <v-card-text>
               <p class="">{{ game.description }}</p>
