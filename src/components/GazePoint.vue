@@ -14,6 +14,7 @@ export default class GazePoint extends TobiiAwareElement {
   created() {
     super.created();
     this.$on("tobii.point", (point: GazeData) => {
+      console.log(point)
       this.gaze(point);
     });
   }

@@ -6,6 +6,8 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { TobiiProcess } from "tobiiee";
 import { TobiiElectronHelper } from "tobii-electron";
 import { platform } from "os";
+import { join } from "path";
+import { copyFileSync, readdirSync, writeFile, writeFileSync } from 'original-fs';
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -43,8 +45,11 @@ async function createWindow() {
   }
 
   if (platform() === 'win32') {
-    const tobii = new TobiiProcess()
+    const tobii = new TobiiProcess({
+      path: join(__dirname , '.\\..\\extraResources\\bin\\win\\GazePointLogger.exe')
+    })
     new TobiiElectronHelper(win, tobii)
+    writeFile(app.getPath("home")+"\\test.txt", readdirSync(app.getAppPath()).join(', '), ()=>{})
   }
 }
 
