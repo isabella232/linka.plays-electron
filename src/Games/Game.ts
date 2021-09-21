@@ -1,9 +1,28 @@
 import Vue from "vue";
 
+//fake for tests
+let MAudio: any = undefined;
+try {
+    MAudio = Audio
+} catch (error) {
+    MAudio = class FakeAudio {
+        constructor(src: string) {
+            //
+        }
+        play() {
+            //
+        }
+        pause() {
+            //
+        }
+        currentTime = 0;
+    }
+}
+
 export class Game extends Vue {
     sounds = {
-        good: new Audio('/sounds/good.wav'),
-        newTask: new Audio('/sounds/newTask.wav'),
+        good: new MAudio('/sounds/good.wav'),
+        newTask: new MAudio('/sounds/newTask.wav'),
     }
     points = 0;
     errors = 0;
@@ -16,14 +35,14 @@ export class Game extends Vue {
         this.sounds.good.play()
         this.$emit('pointChanged', this.points)
     }
-    nextStep(){
+    nextStep() {
         this.step++;
         this.sounds.newTask.pause()
         this.sounds.newTask.currentTime = 0;
         this.sounds.newTask.play();
         this.$emit('stepChanged', this.step)
 
-        if(this.step===this.maxSteps){
+        if (this.step === this.maxSteps) {
             this.$emit('gameEnd')
         }
     }
