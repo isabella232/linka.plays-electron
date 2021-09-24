@@ -49,6 +49,7 @@ export default class CatchButterfly extends Game {
         this.hit();
       }
     });
+    this.hit()
   }
   hit() {
     if(!this.butterflyVisible){
