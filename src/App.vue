@@ -8,7 +8,7 @@
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="@/assets/logo.png"
           transition="scale-transition"
           width="40"
         />
@@ -17,17 +17,19 @@
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
       </div>
-
-      <v-spacer></v-spacer>
+      <v-toolbar-title> LINKa. играй </v-toolbar-title>
     </v-app-bar>
-
     <v-main>
-      <component :is="mainPage?'v-container':'div'" :class="{ 'game-container': !mainPage }">
+      <component
+        :is="mainPage ? 'v-container' : 'div'"
+        :class="{ 'game-container': !mainPage }"
+      >
         <router-view @stepChanged="(step) => (this.step = step)" />
       </component>
     </v-main>
   </v-app>
 </template>
+
 
 <script lang="ts">
 import Vue from "vue";
@@ -41,10 +43,10 @@ import GazePoint from "./components/GazePoint.vue";
 export default class App extends Vue {
   mainPage = this.$router.currentRoute.path === "/";
   gameInfo = {
-step: 0,
-points: 0,
-title: null
-  }
+    step: 0,
+    points: 0,
+    title: null,
+  };
   created() {
     this.$router.afterEach(() => {
       this.mainPage = this.$router.currentRoute.path === "/";

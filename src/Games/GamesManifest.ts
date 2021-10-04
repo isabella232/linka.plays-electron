@@ -1,5 +1,6 @@
 import { VueConstructor } from "vue";
 import Butterfly from "./Butterfly/Butterfly.vue";
+import CanvasButterfly from "./CanvasButterfly/CanvasButterfly.vue";
 import CatchButterfly from "./CatchButterfly/CatchButterfly.vue";
 import TicTacToe from "./TicTacToe/TicTacToe.vue";
 export class GamesManifest {
@@ -14,6 +15,7 @@ export class GamesManifest {
     games = [
         Butterfly,
         CatchButterfly,
+        CanvasButterfly,
         TicTacToe
     ];
 

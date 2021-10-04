@@ -6,7 +6,7 @@
       v-if="butterflyVisible"
       :style="{ left: point.x + 'px', top: point.y + 'px' }"
     >
-      <img src="@/assets/butterfly.png" alt="" />
+      <img src="/images/butterfly.png" alt="" />
     </div>
   </section>
 </template>
@@ -49,19 +49,19 @@ export default class CatchButterfly extends Game {
         this.hit();
       }
     });
-    this.hit()
+    this.hit();
   }
   hit() {
-    if(!this.butterflyVisible){
-      return
+    if (!this.butterflyVisible) {
+      return;
     }
     this.butterflyVisible = false;
     setTimeout(() => {
       this.butterflyVisible = true;
     }, 500);
 
-    const x = Math.random() * this.$el.clientWidth * 0.5 + 200;
-    const y = Math.random() * this.$el.clientHeight * 0.5 + 200;
+    const x = Math.random() * (this.$el.clientWidth) * 0.5 + 200;
+    const y = Math.random() * (this.$el.clientHeight) * 0.5 + 200;
     this.point = { x, y };
     (this as unknown as Game).nextStep();
   }

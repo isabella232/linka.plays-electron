@@ -6,7 +6,7 @@
       class="butterfly"
       :style="{ left: point.x + 'px', top: point.y + 'px' }"
     >
-      <img src="@/assets/butterfly.png" alt="" />
+      <img src="/images/butterfly.png" alt="" />
     </div>
   </section>
 </template>

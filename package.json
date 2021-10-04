@@ -17,6 +17,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "delay": "^5.0.0",
+    "paper": "^0.12.15",
     "tobii-electron": "github:linkasu/tobii-electron",
     "tobii-vue-mixin": "github:linkasu/tobii-vue-mixin",
     "tobiiee": "github:linkasu/TobiiEE-module-node",
