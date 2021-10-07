@@ -1,10 +1,50 @@
 <template>
   <div class="GameView">
-    <component :is="game" @pointChanged="(points)=>$emit('pointChanged', points)"  @stepChanged="(points)=>$emit('stepChanged', points)"  />
+
+    <v-overlay :value="gameover">
+      <v-card
+          class=""
+      elevation=""
+          max-width=""
+        >
+        <v-card-title primary-title>
+          Игра окончена
+        </v-card-title>
+          <v-card-text>
+            <p class="">
+              Набрано очков: {{$store.getters.points}}
+            </p>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn
+              text
+              color=""
+              @click="restart"
+            >
+             Начать сначалла
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              text
+              color=""
+              to="/"
+            >
+            Выйти
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+    </v-overlay>
+    <component
+      :is="game"
+      ref="gameInstance"
+      @pointChanged="(points) => $emit('pointChanged', points)"
+      @stepChanged="(points) => $emit('stepChanged', points)"
+    />
   </div>
 </template>
 
 <script lang="ts">
+import { Game } from "@/Games/Game";
 import { GamesManifest } from "@/Games/GamesManifest";
 import Vue from "vue";
 import Component from "vue-class-component";
@@ -12,8 +52,16 @@ import Component from "vue-class-component";
 @Component
 export default class GameViewer extends Vue {
   gameid: string | null = null;
+
   get game() {
     return GamesManifest.instance.findById(this.gameid);
+  }
+  get gameover() {
+    return this.$store.getters.gameover;
+  }
+  restart(){
+    (this.$refs.gameInstance as Game).restart();
+    (this.$refs.gameInstance as Game).$mount()
   }
   created() {
     this.gameid = this.$router.currentRoute.params.gameid;
@@ -25,5 +73,5 @@ export default class GameViewer extends Vue {
 .GameView {
   width: 100%;
   height: 100%;
-}
+} 
 </style>

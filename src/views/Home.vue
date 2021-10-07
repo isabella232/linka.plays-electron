@@ -11,7 +11,7 @@
               <div class="text--primary"></div>
             </v-card-text>
             <v-card-actions>
-              <v-btn text :to="'/game/' + game.id"> Играть </v-btn>
+              <v-btn text :to="'/game/' + game.id"> Играть! </v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

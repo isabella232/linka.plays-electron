@@ -3,7 +3,8 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true,
-      builderOptions:{
+      builderOptions: {
+        publish: ['github'],
         extraResources: [
           {
             from: "./extraResources/",
@@ -11,7 +12,7 @@ module.exports = {
             filter: ["**/*"],
           },
         ],
-    }
+      }
     },
   },
 };

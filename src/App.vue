@@ -1,33 +1,34 @@
 <template>
   <v-app>
     <gaze-point />
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
+          
+    <v-app-bar app color="primary" dark v-if="mainPage">
         <v-img
-          v-if="mainPage"
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="@/assets/logo.png"
           transition="scale-transition"
           width="40"
         />
 
-        <v-btn icon to="/" v-else>
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
-      </div>
-
-      <v-spacer></v-spacer>
+      
+      <v-toolbar-title v-if="mainPage"> LINKa. играй </v-toolbar-title>
+      
     </v-app-bar>
+      <router-view v-else name="header" />
 
     <v-main>
-      <component :is="mainPage?'v-container':'div'" :class="{ 'game-container': !mainPage }">
+      <component
+        :is="mainPage ? 'v-container' : 'div'"
+        :class="{ 'game-container': !mainPage }"
+      >
         <router-view @stepChanged="(step) => (this.step = step)" />
       </component>
     </v-main>
   </v-app>
 </template>
+
 
 <script lang="ts">
 import Vue from "vue";
@@ -41,10 +42,10 @@ import GazePoint from "./components/GazePoint.vue";
 export default class App extends Vue {
   mainPage = this.$router.currentRoute.path === "/";
   gameInfo = {
-step: 0,
-points: 0,
-title: null
-  }
+    step: 0,
+    points: 0,
+    title: null,
+  };
   created() {
     this.$router.afterEach(() => {
       this.mainPage = this.$router.currentRoute.path === "/";
