@@ -8,6 +8,7 @@ import { TobiiElectronHelper } from "tobii-electron";
 import { platform } from "os";
 import { join } from "path";
 import { copyFileSync, readdirSync, writeFile, writeFileSync } from 'original-fs';
+import { autoUpdater } from 'electron-updater';
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -42,14 +43,15 @@ async function createWindow() {
     createProtocol('app')
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
+
+    autoUpdater.checkForUpdatesAndNotify()
   }
 
   if (platform() === 'win32') {
     const tobii = new TobiiProcess({
-      path: join(__dirname , '.\\..\\extraResources\\bin\\win\\GazePointLogger.exe')
+      path: join(__dirname, '.\\..\\extraResources\\bin\\win\\GazePointLogger.exe')
     })
     new TobiiElectronHelper(win, tobii)
-    writeFile(app.getPath("home")+"\\test.txt", readdirSync(app.getAppPath()).join(', '), ()=>{})
   }
 }
 
@@ -76,7 +78,7 @@ app.on('ready', async () => {
     // Install Vue Devtools
     try {
       await installExtension(VUEJS_DEVTOOLS)
-    } catch (e) {
+    } catch (e:any) {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }

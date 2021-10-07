@@ -12,17 +12,18 @@ import { Game } from "../Game";
 import paper from "paper";
 import { Color, Path, Point } from "paper/dist/paper-core";
 import { EventEmitter } from "events";
-@Component({
-  mixins: [Game],
-})
+
+
 export default class CanvasButterfly extends Game {
-  static id = "CanvasButterfly";
-  static title = "CanvasБабочки";
+  static id = "butterfly";
+  static title = "Бабочки";
   static description = "...";
+  maxSteps = 60;
   frameEventEmmiter = new EventEmitter();
   flower: paper.Item | null = null;
   butterflyPoints = [] as paper.Point[];
   butterflies: paper.Group | null = null;
+  interval: number | null = null;
   mounted() {
     const canvas = document.getElementById("myCanvas");
     if (!canvas) {
@@ -55,7 +56,12 @@ export default class CanvasButterfly extends Game {
         this.flower.rotate(2);
       }
     });
-
+    this.interval = +setInterval(() => {
+      this.nextStep(false);
+      if (this.gameover) {
+        if (this.interval   ) clearInterval(this.interval);
+      }
+    }, 1000);
     this.drawFlowers();
   }
   onPoint(point: paper.Point) {
@@ -66,7 +72,7 @@ export default class CanvasButterfly extends Game {
 
     if (this.flower?.bounds.contains(point)) {
       console.log("hit");
-      this.nextStep();
+      this.addPoint();
       this.drawFlowers();
       this.butterflyPoints = [];
     }
@@ -106,7 +112,7 @@ export default class CanvasButterfly extends Game {
     flower.position = point;
   }
   getFlower() {
-    const size = 250 - this.step * 25;
+    const size = 250/(this.points*0.2+1);
 
     const romashka = new paper.Raster({
       source: "/images/romashka.png",

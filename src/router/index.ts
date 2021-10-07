@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
 import GameViewer from '../views/GameViewer.vue'
+import GameViewerHeader from '../views/GameViewerHeader.vue'
 
 Vue.use(VueRouter)
 
@@ -14,7 +15,11 @@ const routes: Array<RouteConfig> = [
   {
     path: '/game/:gameid',
     name: 'Game',
-    component: GameViewer
+    components: {
+      default: GameViewer,
+      header: GameViewerHeader
+    }
+
   }
 ]
 

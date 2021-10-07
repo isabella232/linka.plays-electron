@@ -19,31 +19,53 @@ try {
     }
 }
 
-export class Game extends Vue {
+export abstract class Game extends Vue {
     sounds = {
         good: new MAudio('/sounds/good.wav'),
         newTask: new MAudio('/sounds/newTask.wav'),
     }
+    static id: string;
     points = 0;
-    errors = 0;
     step = 0;
     maxSteps = 10;
+    get gameover() {
+        return this.step >= this.maxSteps
+    }
 
+    constructor(options: any) {
+        super(options)
+        setTimeout(() => {
+
+            this.$store.commit('maxSteps', this.maxSteps)
+            this.restart()
+        }, 0);
+    }
+    restart() {
+        this.points = 0
+        this.step = 0
+        this.$store.commit('points', this.points)
+        this.$store.commit('step', this.step)
+
+    }
 
     addPoint() {
         this.points++;
         this.sounds.good.play()
+        this.$store.commit('points', this.points)
         this.$emit('pointChanged', this.points)
     }
-    nextStep() {
+    nextStep(sounded = true) {
         this.step++;
-        this.sounds.newTask.pause()
-        this.sounds.newTask.currentTime = 0;
-        this.sounds.newTask.play();
+        this.$store.commit('step', this.step)
+        if (sounded) {
+            this.sounds.newTask.pause()
+            this.sounds.newTask.currentTime = 0;
+            this.sounds.newTask.play();
+        }
         this.$emit('stepChanged', this.step)
 
-        if (this.step === this.maxSteps) {
-            this.$emit('gameEnd')
+        if (this.gameover) {
+            this.$emit('gameoover')
         }
     }
 }

@@ -2,6 +2,9 @@
   "name": "linka.plays-electron",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "url": "git@github.com:linkasu/linka.plays-electron.git"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -17,6 +20,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "delay": "^5.0.0",
+    "electron-updater": "^4.3.9",
     "paper": "^0.12.15",
     "tobii-electron": "github:linkasu/tobii-electron",
     "tobii-vue-mixin": "github:linkasu/tobii-vue-mixin",

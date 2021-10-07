@@ -34,7 +34,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: build
-        run: npm run electron:build
+        run: npm run electron:build --publish onTag
         env:
           GH_TOKEN: ${{secrets.GH_TOKEN}}      
       - name: Upload a Build Artifact
