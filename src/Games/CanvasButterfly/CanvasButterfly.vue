@@ -70,7 +70,7 @@ export default class CanvasButterfly extends Game {
       this.butterflyPoints.shift();
     }
 
-    if (this.flower?.bounds.contains(point)) {
+    if (this.flower&&this.flower.bounds.contains(point)) {
       console.log("hit");
       this.addPoint();
       this.drawFlowers();
@@ -102,7 +102,7 @@ export default class CanvasButterfly extends Game {
     console.log("draw butterfly");
   }
   drawFlowers() {
-    this.flower?.remove();
+    if(this.flower) this.flower.remove();
     const point = new paper.Point(
       Math.random() * paper.view.size.width * 0.8,
       Math.random() * paper.view.size.height * 0.8
