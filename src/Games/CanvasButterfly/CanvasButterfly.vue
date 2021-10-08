@@ -13,7 +13,7 @@ import paper from "paper";
 import { Color, Path, Point } from "paper/dist/paper-core";
 import { EventEmitter } from "events";
 
-
+@Component
 export default class CanvasButterfly extends Game {
   static id = "butterfly";
   static title = "Бабочки";
