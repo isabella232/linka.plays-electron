@@ -26,6 +26,7 @@ export default class CanvasButterfly extends Game {
   interval: number | null = null;
   mounted() {
     const canvas = document.getElementById("myCanvas");
+
     if (!canvas) {
       return;
     }
@@ -55,11 +56,12 @@ export default class CanvasButterfly extends Game {
       if (this.flower) {
         this.flower.rotate(2);
       }
+      this.drawButterflies();
     });
     this.interval = +setInterval(() => {
       this.nextStep(false);
       if (this.gameover) {
-        if (this.interval   ) clearInterval(this.interval);
+        if (this.interval) clearInterval(this.interval);
       }
     }, 1000);
     this.drawFlowers();
@@ -70,14 +72,11 @@ export default class CanvasButterfly extends Game {
       this.butterflyPoints.shift();
     }
 
-    if (this.flower&&this.flower.bounds.contains(point)) {
-      console.log("hit");
+    if (this.flower && this.flower.bounds.contains(point)) {
       this.addPoint();
       this.drawFlowers();
       this.butterflyPoints = [];
     }
-
-    this.drawButterflies();
   }
   drawButterflies() {
     if (this.butterflies != null) {
@@ -85,7 +84,6 @@ export default class CanvasButterfly extends Game {
       this.butterflies.remove();
     }
     this.butterflies = new paper.Group();
-    console.log(this.butterflyPoints.length);
 
     for (let index = 0; index < this.butterflyPoints.length; index++) {
       const point = this.butterflyPoints[index];
@@ -99,10 +97,9 @@ export default class CanvasButterfly extends Game {
       butterfly.position = point as paper.Point;
       this.butterflies.addChild(butterfly);
     }
-    console.log("draw butterfly");
   }
   drawFlowers() {
-    if(this.flower) this.flower.remove();
+    if (this.flower) this.flower.remove();
     const point = new paper.Point(
       Math.random() * paper.view.size.width * 0.8,
       Math.random() * paper.view.size.height * 0.8
@@ -112,7 +109,7 @@ export default class CanvasButterfly extends Game {
     flower.position = point;
   }
   getFlower() {
-    const size = 250/(this.points*0.2+1);
+    const size = 250 / (this.points * 0.2 + 1);
 
     const romashka = new paper.Raster({
       source: "/images/romashka.png",
