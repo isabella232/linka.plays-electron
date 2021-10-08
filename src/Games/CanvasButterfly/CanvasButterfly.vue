@@ -24,6 +24,7 @@ export default class CanvasButterfly extends Game {
   butterflyPoints = [] as paper.Point[];
   butterflies: paper.Group | null = null;
   interval: number | null = null;
+  lastGazeTS = 0;
   mounted() {
     const canvas = document.getElementById("myCanvas");
 
@@ -40,6 +41,10 @@ export default class CanvasButterfly extends Game {
     };
     document.addEventListener("tobii.point", (e) => {
       const data = (e as any).detail as GazeData;
+      if(data.ts-this.lastGazeTS<(1000/60)){
+          return
+      }
+      this.lastGazeTS = data.ts
       const rect = this.$el.getBoundingClientRect();
       this.onPoint(
         new paper.Point({
