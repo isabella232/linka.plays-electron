@@ -1,5 +1,6 @@
 import { VueConstructor } from "vue";
 import CanvasButterfly from "./CanvasButterfly/CanvasButterfly.vue";
+import Arkanoid from "./Arkanoid/Arkanoid.vue";
 
 export class GamesManifest {
     private static _instance: GamesManifest | null;
@@ -10,12 +11,12 @@ export class GamesManifest {
         return this._instance
     }
 
-    games = [
+    games = {
         CanvasButterfly,
+        Arkanoid
+    } as { [key in string]: VueConstructor };
 
-    ];
-
-    findById(gameid: string | null): VueConstructor | undefined {
-        return this.games.find((game: any) => game.id === gameid)
+    findById(gameid: string): VueConstructor | undefined {
+        return this.games[gameid]
     }
 }
