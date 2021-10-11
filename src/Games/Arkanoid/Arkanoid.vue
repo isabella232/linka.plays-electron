@@ -20,10 +20,10 @@ export default class Arkanoid extends Game {
   static title = "Звездный теннис";
   static description = "Арканоид";
   frameEventEmmiter = new EventEmitter();
-  frameGroup: paper.Group;
+  frameGroup: paper.Group | null = null;
   ballVector = new Point(1, -1);
-  ball: paper.Path.Circle;
-  deck: paper.Path.Rectangle;
+  ball: paper.Path.Circle | null = null;
+  deck: paper.Path.Rectangle | null = null;
   gameX = 0;
   maxSteps = 4 * 6;
 
@@ -34,7 +34,7 @@ export default class Arkanoid extends Game {
     brickWidth: 0,
     brickHeight: 0,
   };
-  bricks: paper.Group;
+  bricks: paper.Group | null = null;
 
   mounted() {
     const canvas = document.getElementById("myCanvas");
@@ -92,15 +92,18 @@ export default class Arkanoid extends Game {
   }
 
   onFrame(arg0: string, onFrame: any) {
-    this.deck.position = new Point(this.gameX, this.units.vh(80));
-    this.frameGroup.children.forEach(this.countCollision);
-    this.bricks.children.filter(this.countCollision).map((brick) => {
-      brick.remove();
-      this.nextStep();
-    });
-    this.ball.position = this.ball.position.add(this.ballVector);
+    if (this.deck)
+      this.deck.position = new Point(this.gameX, this.units.vh(80));
+    if (this.frameGroup) this.frameGroup.children.forEach(this.countCollision);
+    if (this.bricks)
+      this.bricks.children.filter(this.countCollision).map((brick) => {
+        brick.remove();
+        this.nextStep();
+      });
+    if (this.ball) this.ball.position = this.ball.position.add(this.ballVector);
   }
   countCollision(child: paper.Item) {
+    if (!this.ball) return false;
     if (child.bounds.contains(this.ball.position)) {
       const t =
         child.bounds.leftCenter.x === this.ball.position.x ||

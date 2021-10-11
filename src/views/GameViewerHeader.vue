@@ -30,7 +30,8 @@ export default class GameViewerHeader extends Vue {
   gameid: string | null = null;
 
   get game() {
-    return GamesManifest.instance.findById(this.gameid);
+    if (this.gameid) return GamesManifest.instance.findById(this.gameid);
+    return null;
   }
   created() {
     this.gameid = this.$router.currentRoute.params.gameid;
