@@ -12,6 +12,7 @@ import { Game } from "../Game";
 import paper from "paper";
 import { Color, Group, Path, Point, Size } from "paper/dist/paper-core";
 import { EventEmitter } from "events";
+import { ipcRenderer } from "electron";
 
 @Component
 export default class Arkanoid extends Game {
@@ -34,7 +35,6 @@ export default class Arkanoid extends Game {
     brickHeight: 0,
   };
   bricks: paper.Group;
-  lastGazeTS: number;
 
   mounted() {
     const canvas = document.getElementById("myCanvas");
@@ -71,12 +71,7 @@ export default class Arkanoid extends Game {
     paper.view.onMouseDrag = (event: { point: paper.Point }) => {
       this.setGameX(event.point.x);
     };
-    document.addEventListener("tobii.point", (e) => {
-      const data = (e as any).detail as GazeData;
-      if (data.ts - this.lastGazeTS < 1000 / 60) {
-        return;
-      }
-      this.lastGazeTS = data.ts;
+    ipcRenderer.on("point", (_, data: GazeData) => {
       const rect = this.$el.getBoundingClientRect();
       this.setGameX(data.x - rect.x);
     });
