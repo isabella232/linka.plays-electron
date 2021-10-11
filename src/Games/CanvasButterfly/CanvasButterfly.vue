@@ -16,7 +16,7 @@ import { ipcRenderer } from "electron";
 
 @Component
 export default class CanvasButterfly extends Game {
-  static id = "butterfly";
+  static id = "CanvasButterfly";
   static title = "Бабочки";
   static description = "...";
   maxSteps = 60;
