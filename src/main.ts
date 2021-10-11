@@ -8,7 +8,6 @@ import { ipcRenderer } from 'electron'
 
 Vue.config.productionTip = false
 
-TobiiElectronHelper.addGlobalPointEvent(ipcRenderer, document)
 
 new Vue({
   router,

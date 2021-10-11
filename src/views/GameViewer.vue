@@ -54,7 +54,7 @@ export default class GameViewer extends Vue {
   gameid: string | null = null;
 
   get game() {
-    return GamesManifest.instance.findById(this.gameid);
+    return this.gameid?GamesManifest.instance.findById(this.gameid):null;
   }
   get gameover() {
     return this.$store.getters.gameover;

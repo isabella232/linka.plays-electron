@@ -12,10 +12,11 @@ import { Game } from "../Game";
 import paper from "paper";
 import { Color, Path, Point } from "paper/dist/paper-core";
 import { EventEmitter } from "events";
+import { ipcRenderer } from "electron";
 
 @Component
 export default class CanvasButterfly extends Game {
-  static id = "butterfly";
+  static id = "CanvasButterfly";
   static title = "Бабочки";
   static description = "...";
   maxSteps = 60;
@@ -39,12 +40,9 @@ export default class CanvasButterfly extends Game {
     paper.view.onFrame = (event: any) => {
       this.frameEventEmmiter.emit("frame", event);
     };
-    document.addEventListener("tobii.point", (e) => {
-      const data = (e as any).detail as GazeData;
-      if(data.ts-this.lastGazeTS<(1000/60)){
-          return
-      }
-      this.lastGazeTS = data.ts
+    
+    ipcRenderer.on("point", (_, data: GazeData) => {
+    
       const rect = this.$el.getBoundingClientRect();
       this.onPoint(
         new paper.Point({
