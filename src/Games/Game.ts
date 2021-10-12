@@ -49,13 +49,14 @@ export abstract class Game extends Vue {
     }
 
     addPoint() {
-        if(this.gameover) return;
+        if (this.gameover) return;
         this.points++;
         this.sounds.good.play()
         this.$store.commit('points', this.points)
         this.$emit('pointChanged', this.points)
     }
     nextStep(sounded = true) {
+        if (this.gameover) return;
         this.step++;
         this.$store.commit('step', this.step)
         if (sounded) {
@@ -63,6 +64,16 @@ export abstract class Game extends Vue {
             this.sounds.newTask.currentTime = 0;
             this.sounds.newTask.play();
         }
+        this.$emit('stepChanged', this.step)
+
+        if (this.gameover) {
+            this.$emit('gameoover')
+        }
+    }
+    makeGameOver() {
+        if (this.gameover) return;
+        this.step = this.maxSteps;
+        this.$store.commit('step', this.step)
         this.$emit('stepChanged', this.step)
 
         if (this.gameover) {

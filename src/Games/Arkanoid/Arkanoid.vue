@@ -21,11 +21,17 @@ export default class Arkanoid extends Game {
   static description = "Арканоид";
   frameEventEmmiter = new EventEmitter();
   frameGroup: paper.Group | null = null;
-  ballVector = new Point(1, -1);
   ball: paper.Path.Circle | null = null;
   deck: paper.Path.Rectangle | null = null;
   gameX = 0;
-  maxSteps = 4 * 6;
+  maxSteps = 4 * 6 * 3;
+  speed = 2;
+  angle = -(Math.PI / 0.2 + Math.PI / 4);
+  getBallVector() {
+    return new Point(Math.sin(this.angle), Math.cos(this.angle)).multiply(
+      this.speed
+    );
+  }
 
   SIZES = {
     frameWidth: 0,
@@ -33,6 +39,7 @@ export default class Arkanoid extends Game {
     deckWidth: 0,
     brickWidth: 0,
     brickHeight: 0,
+    ballRadius: 0,
   };
   bricks: paper.Group | null = null;
 
@@ -48,12 +55,14 @@ export default class Arkanoid extends Game {
     this.SIZES.frameWidth = this.units.vw(60);
     this.SIZES.frameHeight = this.units.vh(80);
     this.SIZES.deckWidth = this.units.vw(10);
-    this.SIZES.brickWidth = this.units.vw(2.5);
-    this.SIZES.brickHeight = this.units.vw(1);
+    this.SIZES.brickWidth = this.units.vw(3);
+    this.SIZES.brickHeight = this.units.vw(1.25);
+    this.SIZES.ballRadius = this.units.vw(0.4);
 
     paper.view.onResize = this.onResize;
     paper.view.play();
     paper.view.onFrame = (event: any) => {
+      this.onFrame();
       this.frameEventEmmiter.emit("frame", event);
     };
     this.gameX = this.units.vw(50);
@@ -62,11 +71,11 @@ export default class Arkanoid extends Game {
     this.drawBricks();
     this.ball = new paper.Path.Circle(
       new Point(this.units.vw(50), this.units.vh(50)),
-      this.units.vmin(1)
+      this.SIZES.ballRadius
     );
     this.ball.fillColor = new Color("red");
 
-    this.frameEventEmmiter.on("frame", this.onFrame);
+    // this.frameEventEmmiter.on("frame", this.onFrame);
 
     paper.view.onMouseDrag = (event: { point: paper.Point }) => {
       this.setGameX(event.point.x);
@@ -91,28 +100,72 @@ export default class Arkanoid extends Game {
     }
   }
 
-  onFrame(arg0: string, onFrame: any) {
+  onFrame() {
+    if (this.gameover) {
+      return;
+    }
     if (this.deck)
       this.deck.position = new Point(this.gameX, this.units.vh(80));
     if (this.frameGroup) this.frameGroup.children.forEach(this.countCollision);
     if (this.bricks)
       this.bricks.children.filter(this.countCollision).map((brick) => {
-        brick.remove();
+        brick.data.lives--;
+        brick.fillColor = [
+          new Color("red"),
+          new Color("#DDDDFF"),
+          new Color("#DDDD9F"),
+          new Color("#DDDDAF"),
+        ][brick.data.lives];
+        if (brick.data.lives === 0) {
+          this.createCoin(brick.position);
+          brick.remove();
+        }
         this.nextStep();
       });
-    if (this.ball) this.ball.position = this.ball.position.add(this.ballVector);
+    if (this.ball) {
+      this.ball.position = this.ball.position.add(this.getBallVector());
+
+      if (this.deck && this.ball.position.y > this.deck.position.y) {
+        this.makeGameOver();
+        this.speed = 0;
+      }
+    }
   }
-  countCollision(child: paper.Item) {
+  createCoin(position: paper.Point) {
+    new paper.Raster({
+      source: "/images/coin.png",
+      position,
+      size: new paper.Size(this.SIZES.ballRadius, this.SIZES.ballRadius),
+    });
+  }
+  countCollision(child: paper.PathItem) {
     if (!this.ball) return false;
-    if (child.bounds.contains(this.ball.position)) {
-      const t =
-        child.bounds.leftCenter.x === this.ball.position.x ||
-        child.bounds.rightCenter.x === this.ball.position.x;
-      this.ballVector = this.ballVector.multiply(
-        new Point(t ? -1 : 1, t ? 1 : -1)
-      );
+
+    const intersections = child.getIntersections(this.ball);
+    if (intersections[0]) {
+      let angle = this.ball.position.subtract(intersections[0].point).angle;
+      if (angle < 0) angle += 360;
+      angle += 45;
+      const side = Math.floor(angle / 90);
+
+      if (side === 1 || side === 3) {
+        this.speed *= -1;
+      }
+
+      //   new paper.Path.Circle(intersections[0].point, 5).fillColor = new Color(
+      //     "red"
+      //   );
+      //   new paper.Path.Circle(child.position, 5).fillColor = new Color("red");
+      this.angle *= -1;
+      if (child.data.name === "deck") {
+        let hitpos = (child.position.x - intersections[0].point.x) * -1;
+        // this.angle*=hitpos
+        // TODO: add mirror
+      }
+
       return true;
     }
+
     return false;
   }
   drawFrames() {
@@ -123,9 +176,10 @@ export default class Arkanoid extends Game {
       ),
       new Point(
         this.units.vw(50) + this.SIZES.deckWidth / 2,
-        this.units.vh(80) + this.units.vmin(1)
+        this.units.vh(80) + this.units.vmin(2)
       )
     );
+    this.deck.data.name = "deck";
     this.frameGroup = new paper.Group([
       new paper.Path.Rectangle(
         new Point(
@@ -134,7 +188,7 @@ export default class Arkanoid extends Game {
         ),
         new Point(
           this.units.vw(50) + this.SIZES.frameWidth / 2,
-          this.units.vh(50) - this.SIZES.frameHeight / 2 + this.units.vmin(1)
+          this.units.vh(50) - this.SIZES.frameHeight / 2 + this.units.vmin(2)
         )
       ),
       new paper.Path.Rectangle(
@@ -143,7 +197,7 @@ export default class Arkanoid extends Game {
           this.units.vh(50) - this.SIZES.frameHeight / 2
         ),
         new Point(
-          this.units.vw(50) - this.SIZES.frameWidth / 2 + this.units.vmin(1),
+          this.units.vw(50) - this.SIZES.frameWidth / 2 + this.units.vmin(2),
           this.units.vh(50) + this.SIZES.frameHeight / 2
         )
       ),
@@ -153,7 +207,7 @@ export default class Arkanoid extends Game {
           this.units.vh(50) - this.SIZES.frameHeight / 2
         ),
         new Point(
-          this.units.vw(50) + this.SIZES.frameWidth / 2 + this.units.vmin(1),
+          this.units.vw(50) + this.SIZES.frameWidth / 2 + this.units.vmin(2),
           this.units.vh(50) + this.SIZES.frameHeight / 2
         )
       ),
@@ -180,6 +234,7 @@ export default class Arkanoid extends Game {
           ),
           new Size(this.SIZES.brickWidth, this.SIZES.brickHeight)
         );
+        brick.data.lives = 2;
         brick.fillColor = new Color("#adcdfc");
         this.bricks.addChild(brick);
       }
