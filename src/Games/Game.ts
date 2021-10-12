@@ -49,6 +49,7 @@ export abstract class Game extends Vue {
     }
 
     addPoint() {
+        if(this.gameover) return;
         this.points++;
         this.sounds.good.play()
         this.$store.commit('points', this.points)
