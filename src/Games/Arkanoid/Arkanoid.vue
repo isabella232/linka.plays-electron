@@ -23,8 +23,12 @@ export default class Arkanoid extends Game {
   frameGroup: paper.Group | null = null;
   ball: paper.Path.Circle | null = null;
   deck: paper.Path.Rectangle | null = null;
+  coins: paper.Group | null = null;
   gameX = 0;
-  maxSteps = 4 * 6 * 3;
+  rowsCount = 4;
+  celsCount = 6;
+  lifes = 2;
+  maxSteps = this.rowsCount * this.celsCount * this.lifes;
   speed = 2;
   angle = -(Math.PI / 0.2 + Math.PI / 4);
   getBallVector() {
@@ -69,6 +73,7 @@ export default class Arkanoid extends Game {
 
     this.drawFrames();
     this.drawBricks();
+    this.coins = new paper.Group();
     this.ball = new paper.Path.Circle(
       new Point(this.units.vw(50), this.units.vh(50)),
       this.SIZES.ballRadius
@@ -106,22 +111,27 @@ export default class Arkanoid extends Game {
     }
     if (this.deck)
       this.deck.position = new Point(this.gameX, this.units.vh(80));
-    if (this.frameGroup) this.frameGroup.children.forEach(this.countCollision);
+    if (this.frameGroup)
+      this.frameGroup.children.forEach((item) =>
+        this.countCollision(item as paper.PathItem)
+      );
     if (this.bricks)
-      this.bricks.children.filter(this.countCollision).map((brick) => {
-        brick.data.lives--;
-        brick.fillColor = [
-          new Color("red"),
-          new Color("#DDDDFF"),
-          new Color("#DDDD9F"),
-          new Color("#DDDDAF"),
-        ][brick.data.lives];
-        if (brick.data.lives === 0) {
-          this.createCoin(brick.position);
-          brick.remove();
-        }
-        this.nextStep();
-      });
+      this.bricks.children
+        .filter((item) => this.countCollision(item as paper.PathItem))
+        .map((brick) => {
+          brick.data.lives--;
+          brick.fillColor = [
+            new Color("red"),
+            new Color("#DDDDFF"),
+            new Color("#DDDD9F"),
+            new Color("#DDDDAF"),
+          ][brick.data.lives];
+          if (brick.data.lives === 0) {
+            this.createCoin(brick.position);
+            brick.remove();
+          }
+          this.nextStep();
+        });
     if (this.ball) {
       this.ball.position = this.ball.position.add(this.getBallVector());
 
@@ -130,19 +140,42 @@ export default class Arkanoid extends Game {
         this.speed = 0;
       }
     }
+    if (this.coins) {
+      for (const coin of this.coins.children) {
+        coin.position = coin.position.add(new Point(0, 1));
+        if (this.deck && coin.position.y > this.deck.bounds.topCenter.y) {
+          if (
+            coin.bounds.right > this.deck.bounds.left &&
+            coin.bounds.left < this.deck.bounds.right
+          ) {
+            this.addPoint();
+          }
+          coin.remove();
+        }
+      }
+    }
   }
   createCoin(position: paper.Point) {
-    new paper.Raster({
+    const size = new paper.Size(
+      this.SIZES.ballRadius,
+      this.SIZES.ballRadius
+    ).multiply(5);
+    const coin = new paper.Raster({
       source: "/images/coin.png",
       position,
-      size: new paper.Size(this.SIZES.ballRadius, this.SIZES.ballRadius),
+      size,
     });
+    setTimeout(() => {
+      // bug fix
+      coin.size = size;
+    }, 150);
+    if (this.coins) this.coins.addChild(coin);
   }
   countCollision(child: paper.PathItem) {
     if (!this.ball) return false;
 
     const intersections = child.getIntersections(this.ball);
-    if (intersections[0]) {
+    if (intersections.length < 3 && intersections[0]) {
       let angle = this.ball.position.subtract(intersections[0].point).angle;
       if (angle < 0) angle += 360;
       angle += 45;
@@ -220,8 +253,8 @@ export default class Arkanoid extends Game {
   }
 
   drawBricks() {
-    const rowsCount = 4;
-    const celsCount = 6;
+    const rowsCount = this.rowsCount;
+    const celsCount = this.celsCount;
 
     this.bricks = new paper.Group();
     for (let y = 0; y < rowsCount; y++) {
@@ -234,7 +267,7 @@ export default class Arkanoid extends Game {
           ),
           new Size(this.SIZES.brickWidth, this.SIZES.brickHeight)
         );
-        brick.data.lives = 2;
+        brick.data.lives = this.lifes;
         brick.fillColor = new Color("#adcdfc");
         this.bricks.addChild(brick);
       }
