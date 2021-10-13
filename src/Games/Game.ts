@@ -51,6 +51,9 @@ export abstract class Game extends Vue {
     addPoint() {
         if (this.gameover) return;
         this.points++;
+
+        this.sounds.good.pause()
+        this.sounds.good.currentTime = 0;
         this.sounds.good.play()
         this.$store.commit('points', this.points)
         this.$emit('pointChanged', this.points)
