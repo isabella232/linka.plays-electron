@@ -13,6 +13,8 @@ import paper from "paper";
 import { Color, Group, Path, Point, Size } from "paper/dist/paper-core";
 import { EventEmitter } from "events";
 import { ipcRenderer } from "electron";
+import { EyeFilter } from "@/EyeFilters/EyeFilter";
+import { MiddleValueFilter } from "@/EyeFilters/MiddleValueFilter";
 
 @Component
 export default class Arkanoid extends Game {
@@ -46,6 +48,8 @@ export default class Arkanoid extends Game {
     ballRadius: 0,
   };
   bricks: paper.Group | null = null;
+
+  filter: EyeFilter = new MiddleValueFilter();
 
   mounted() {
     const canvas = document.getElementById("myCanvas");
@@ -87,7 +91,9 @@ export default class Arkanoid extends Game {
     };
     ipcRenderer.on("point", (_, data: GazeData) => {
       const rect = this.$el.getBoundingClientRect();
-      this.setGameX(data.x - rect.x);
+      const point = new Point(data.x, data.y).subtract(new Point(rect.x, 0));
+
+      this.setGameX(this.filter.addPoint(point).x);
     });
   }
 
