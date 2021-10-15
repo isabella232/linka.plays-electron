@@ -49,7 +49,7 @@ export default class Arkanoid extends Game {
   };
   bricks: paper.Group | null = null;
 
-  filter: EyeFilter = new MiddleValueFilter();
+  filter: EyeFilter = new MiddleValueFilter(3);
 
   mounted() {
     const canvas = document.getElementById("myCanvas");
