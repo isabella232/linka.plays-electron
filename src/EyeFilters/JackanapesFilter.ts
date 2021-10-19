@@ -10,7 +10,7 @@ export class JackanapesFilter extends EyeFilter {
             sum = sum.add(point)
         }
         const midValue = sum.divide(this.points.length)
-        if(this.points.length===1){
+        if (this.points.length === 1) {
             return midValue
         }
         let maxDistance = 0;
@@ -19,14 +19,16 @@ export class JackanapesFilter extends EyeFilter {
             if (Object.prototype.hasOwnProperty.call(this.points, key)) {
                 const element = this.points[key];
                 const distance = element.getDistance(midValue);
-                if(distance>maxDistance){
-                    maxDistance=distance
+                if (distance > maxDistance) {
+                    maxDistance = distance
                     maxDistanceIndex = +key
                 }
 
             }
         }
-        sum = sum.subtract(this.points[maxDistanceIndex])
-        return sum.divide(this.points.length-1)
+        if (maxDistanceIndex === this.points.length - 1 && maxDistance>100) {
+            return this.points[this.points.length - 2]
+        }
+        return this.points[this.points.length - 1]
     }
 }
