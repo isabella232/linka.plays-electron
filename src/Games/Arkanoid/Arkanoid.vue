@@ -1,6 +1,6 @@
 <template>
   <section>
-    <canvas id="myCanvas" resize></canvas>
+    <canvas ref="myCanvas" resize></canvas>
   </section>
 </template>
 
@@ -15,9 +15,10 @@ import { EventEmitter } from "events";
 import { ipcRenderer } from "electron";
 import { EyeFilter } from "@/EyeFilters/EyeFilter";
 import { MiddleValueFilter } from "@/EyeFilters/MiddleValueFilter";
+import { CanvasGame } from "../CanvasGame";
 
 @Component
-export default class Arkanoid extends Game {
+export default class Arkanoid extends CanvasGame {
   static id = "Arkanoid";
   static title = "Звездный теннис";
   static description = "Арканоид";
@@ -52,14 +53,9 @@ export default class Arkanoid extends Game {
   filter: EyeFilter = new MiddleValueFilter(3);
 
   mounted() {
-    const canvas = document.getElementById("myCanvas");
-
-    if (!canvas) {
-      return;
-    }
-    // Create an empty project and a view for the canvas:
-    paper.setup(canvas as HTMLCanvasElement);
-
+    super.mounted();
+  }
+  init() {
     this.SIZES.frameWidth = this.units.vw(60);
     this.SIZES.frameHeight = this.units.vh(80);
     this.SIZES.deckWidth = this.units.vw(10);
@@ -67,12 +63,7 @@ export default class Arkanoid extends Game {
     this.SIZES.brickHeight = this.units.vw(1.25);
     this.SIZES.ballRadius = this.units.vw(0.4);
 
-    paper.view.onResize = this.onResize;
-    paper.view.play();
-    paper.view.onFrame = (event: any) => {
-      this.onFrame();
-      this.frameEventEmmiter.emit("frame", event);
-    };
+    this.paper.view.onResize = this.onResize;
     this.gameX = this.units.vw(50);
 
     this.drawFrames();
@@ -84,9 +75,7 @@ export default class Arkanoid extends Game {
     );
     this.ball.fillColor = new Color("red");
 
-    // this.frameEventEmmiter.on("frame", this.onFrame);
-
-    paper.view.onMouseDrag = (event: { point: paper.Point }) => {
+    this.paper.view.onMouseDrag = (event: { point: paper.Point }) => {
       this.setGameX(event.point.x);
     };
     ipcRenderer.on("point", (_, data: GazeData) => {
@@ -278,14 +267,14 @@ export default class Arkanoid extends Game {
         this.bricks.addChild(brick);
       }
     }
-    this.bricks.position = paper.view.center.add(
+    this.bricks.position = this.paper.view.center.add(
       new Point(0, -this.units.vh(20))
     );
   }
 
   get units() {
-    const vw = paper.view.viewSize.width / 100;
-    const vh = paper.view.viewSize.height / 100;
+    const vw = this.paper.view.viewSize.width / 100;
+    const vh = this.paper.view.viewSize.height / 100;
     const units = {
       vw,
       vh,

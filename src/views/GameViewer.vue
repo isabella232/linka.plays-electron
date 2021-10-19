@@ -21,7 +21,7 @@
               color=""
               @click="restart"
             >
-             Начать сначалла
+             Начать сначала
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
@@ -35,6 +35,7 @@
         </v-card>
     </v-overlay>
     <component
+      v-if="gameShows"
       :is="game"
       ref="gameInstance"
       @pointChanged="(points) => $emit('pointChanged', points)"
@@ -52,7 +53,7 @@ import Component from "vue-class-component";
 @Component
 export default class GameViewer extends Vue {
   gameid: string | null = null;
-
+gameShows=true
   get game() {
     return this.gameid?GamesManifest.instance.findById(this.gameid):null;
   }
@@ -60,8 +61,11 @@ export default class GameViewer extends Vue {
     return this.$store.getters.gameover;
   }
   restart(){
-    (this.$refs.gameInstance as Game).restart();
-    (this.$refs.gameInstance as Game).$mount()
+    this.gameShows = false;
+    this.$nextTick(()=>{
+      this.gameShows = true
+    })
+    // (this.$refs.gameInstance as Game).$mount()
   }
   created() {
     this.gameid = this.$router.currentRoute.params.gameid;

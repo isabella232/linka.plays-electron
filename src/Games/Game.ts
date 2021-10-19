@@ -41,11 +41,7 @@ export abstract class Game extends Vue {
         }, 0);
     }
     restart() {
-        this.points = 0
-        this.step = 0
-        this.$store.commit('points', this.points)
-        this.$store.commit('step', this.step)
-
+        this.$emit('restart')
     }
 
     addPoint() {
