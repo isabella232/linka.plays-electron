@@ -37,9 +37,16 @@ export abstract class Game extends Vue {
         setTimeout(() => {
 
             this.$store.commit('maxSteps', this.maxSteps)
-            this.restart()
+            // this.restart()
         }, 0);
     }
+    resetScore(){
+        this.points = 0;
+        this.step = 0;
+        this.$store.commit('points', this.points)
+        this.$store.commit('step', this.step)
+
+        }
     restart() {
         this.$emit('restart')
     }

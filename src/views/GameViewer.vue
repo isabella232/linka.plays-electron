@@ -62,10 +62,11 @@ gameShows=true
   }
   restart(){
     this.gameShows = false;
+    (this.$refs.gameInstance as Game).resetScore()
+
     this.$nextTick(()=>{
       this.gameShows = true
     })
-    // (this.$refs.gameInstance as Game).$mount()
   }
   created() {
     this.gameid = this.$router.currentRoute.params.gameid;
