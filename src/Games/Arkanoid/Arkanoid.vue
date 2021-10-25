@@ -32,8 +32,14 @@ export default class Arkanoid extends CanvasGame {
   celsCount = 6;
   lifes = 2;
   maxSteps = this.rowsCount * this.celsCount * this.lifes;
-  speed = 2;
+  speed = 1.25;
+  deckSpeed = 4;
   angle = -(Math.PI / 0.2 + Math.PI / 4);
+  controlls = {
+    left: null as paper.PathItem | null,
+    right: null as paper.PathItem | null,
+    move: 0,
+  };
   getBallVector() {
     return new Point(Math.sin(this.angle), Math.cos(this.angle)).multiply(
       this.speed
@@ -43,6 +49,7 @@ export default class Arkanoid extends CanvasGame {
   SIZES = {
     frameWidth: 0,
     frameHeight: 0,
+    frameBold: 0,
     deckWidth: 0,
     brickWidth: 0,
     brickHeight: 0,
@@ -58,6 +65,7 @@ export default class Arkanoid extends CanvasGame {
   init() {
     this.SIZES.frameWidth = this.units.vw(60);
     this.SIZES.frameHeight = this.units.vh(80);
+    this.SIZES.frameBold = this.units.vw(1);
     this.SIZES.deckWidth = this.units.vw(10);
     this.SIZES.brickWidth = this.units.vw(3);
     this.SIZES.brickHeight = this.units.vw(1.25);
@@ -67,6 +75,7 @@ export default class Arkanoid extends CanvasGame {
     this.gameX = this.units.vw(50);
 
     this.drawFrames();
+    this.drawControlls();
     this.drawBricks();
     this.coins = new paper.Group();
     this.ball = new paper.Path.Circle(
@@ -75,35 +84,103 @@ export default class Arkanoid extends CanvasGame {
     );
     this.ball.fillColor = new Color("red");
 
-    this.paper.view.onMouseDrag = (event: { point: paper.Point }) => {
-      this.setGameX(event.point.x);
+    this.paper.view.onMouseMove = (event: { point: paper.Point }) => {
+      const point = event.point;
+      if (this.controlls.left && this.controlls.left.bounds.contains(point)) {
+        this.controlls.move = -1;
+      } else if (
+        this.controlls.right &&
+        this.controlls.right.bounds.contains(point)
+      ) {
+        this.controlls.move = 1;
+      } else {
+        this.controlls.move = 0;
+      }
     };
     ipcRenderer.on("point", (_, data: GazeData) => {
       const rect = this.$el.getBoundingClientRect();
-      const point = new Point(data.x, data.y).subtract(new Point(rect.x, 0));
-
-      this.setGameX(this.filter.addPoint(point).x);
+      const point = new Point(data.x, data.y).subtract(
+        new Point(rect.x, rect.y)
+      );
+      if (this.controlls.left && this.controlls.left.bounds.contains(point)) {
+        this.controlls.move = -1;
+      } else if (
+        this.controlls.right &&
+        this.controlls.right.bounds.contains(point)
+      ) {
+        this.controlls.move = 1;
+      } else {
+        this.controlls.move = 0;
+      }
     });
   }
+  drawControlls() {
+    const sq = this.units.vw(4);
+    this.controlls.left = new paper.Path.Rectangle(
+      new Point(
+        this.units.vw(50) - this.SIZES.frameWidth / 2 + this.SIZES.frameBold,
+        this.units.vh(50) + this.SIZES.frameHeight / 2 - sq
+      ),
+      new Point(
+        this.units.vw(50) -
+          this.SIZES.frameWidth / 2 +
+          +this.SIZES.frameBold +
+          sq,
+        this.units.vh(50) + this.SIZES.frameHeight / 2
+      )
+    );
 
-  setGameX(value: number) {
+    this.controlls.right = new paper.Path.Rectangle(
+      new Point(
+        this.units.vw(50) + this.SIZES.frameWidth / 2,
+        this.units.vh(50) + this.SIZES.frameHeight / 2 - sq
+      ),
+      new Point(
+        this.units.vw(50) + this.SIZES.frameWidth / 2 - sq,
+        this.units.vh(50) + this.SIZES.frameHeight / 2
+      )
+    );
+    this.controlls.left.fillColor = this.controlls.right.fillColor = new Color(
+      "red"
+    );
+  }
+
+  setGameX() {
+    if (!this.deck) return;
     const min =
-      this.units.vw(50) - this.SIZES.frameWidth / 2 + this.SIZES.deckWidth / 2;
+      this.units.vw(50) -
+      this.SIZES.frameWidth / 2 +
+      this.SIZES.deckWidth / 2 +
+      this.SIZES.frameBold;
     const max =
       this.units.vw(50) + this.SIZES.frameWidth / 2 - this.SIZES.deckWidth / 2;
-    if (value < min) {
-      this.gameX = min;
-    } else if (value > max) {
-      this.gameX = max;
-    } else {
-      this.gameX = value;
+    const value = this.deck.position.x;
+    
+    if (this.controlls.move == -1) {
+      const newValue = value - this.deckSpeed;
+      if (newValue < min) {
+        this.gameX = min;
+      } else {
+        this.gameX = newValue;
+      }
     }
+    if (this.controlls.move == 1) {
+      const newValue = value + this.deckSpeed;
+      if (newValue > max) {
+        this.gameX = max;
+      } else {
+        this.gameX = newValue;
+      }
+    }
+      this.deck.position = new Point(this.gameX, this.units.vh(80));
+
   }
 
   onFrame() {
     if (this.gameover) {
       return;
     }
+    this.setGameX();
     if (this.deck)
       this.deck.position = new Point(this.gameX, this.units.vh(80));
     if (this.frameGroup)
@@ -204,11 +281,13 @@ export default class Arkanoid extends CanvasGame {
       ),
       new Point(
         this.units.vw(50) + this.SIZES.deckWidth / 2,
-        this.units.vh(80) + this.units.vmin(2)
+        this.units.vh(80) + this.SIZES.frameBold
       )
     );
     this.deck.data.name = "deck";
+
     this.frameGroup = new paper.Group([
+      //top frame
       new paper.Path.Rectangle(
         new Point(
           this.units.vw(50) - this.SIZES.frameWidth / 2,
@@ -216,26 +295,28 @@ export default class Arkanoid extends CanvasGame {
         ),
         new Point(
           this.units.vw(50) + this.SIZES.frameWidth / 2,
-          this.units.vh(50) - this.SIZES.frameHeight / 2 + this.units.vmin(2)
+          this.units.vh(50) - this.SIZES.frameHeight / 2 + this.SIZES.frameBold
         )
       ),
+      //left frame
       new paper.Path.Rectangle(
         new Point(
           this.units.vw(50) - this.SIZES.frameWidth / 2,
           this.units.vh(50) - this.SIZES.frameHeight / 2
         ),
         new Point(
-          this.units.vw(50) - this.SIZES.frameWidth / 2 + this.units.vmin(2),
+          this.units.vw(50) - this.SIZES.frameWidth / 2 + this.SIZES.frameBold,
           this.units.vh(50) + this.SIZES.frameHeight / 2
         )
       ),
+      //right frame
       new paper.Path.Rectangle(
         new Point(
           this.units.vw(50) + this.SIZES.frameWidth / 2,
           this.units.vh(50) - this.SIZES.frameHeight / 2
         ),
         new Point(
-          this.units.vw(50) + this.SIZES.frameWidth / 2 + this.units.vmin(2),
+          this.units.vw(50) + this.SIZES.frameWidth / 2 + this.SIZES.frameBold,
           this.units.vh(50) + this.SIZES.frameHeight / 2
         )
       ),
