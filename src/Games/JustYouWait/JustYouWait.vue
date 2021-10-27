@@ -57,6 +57,13 @@ export default class JustYouWait extends CanvasGame {
     this.tick();
   }
   createControlls(background: paper.Raster) {
+    if(background.width<10){
+
+      setTimeout(() => {
+        this.createControlls
+      }, 100);
+      return
+    }
     this.controlls = new paper.Group();
     this.controlls.addChild(
       new this.paper.Path.Rectangle(
