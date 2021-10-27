@@ -1,66 +1,51 @@
 <template>
   <section>
-    <canvas id="myCanvas" resize></canvas>
+    <canvas ref="myCanvas" resize></canvas>
   </section>
 </template>
 
 <script lang="ts">
 import { GazeData } from "tobiiee/build/GazeData";
 import Vue from "vue";
-import Component from "vue-class-component";
-import { Game } from "../Game";
 import paper from "paper";
-import { Color, Path, Point } from "paper/dist/paper-core";
+import Component from "vue-class-component";
+// import { Color, Path, Point } from "this.paper/dist/this.paper-core";
 import { EventEmitter } from "events";
 import { ipcRenderer } from "electron";
+import { CanvasGame } from "../CanvasGame";
 
 @Component
-export default class CanvasButterfly extends Game {
+export default class CanvasButterfly extends CanvasGame {
   static id = "CanvasButterfly";
   static title = "Бабочки";
   static description = "...";
   maxSteps = 60;
-  frameEventEmmiter = new EventEmitter();
   flower: paper.Item | null = null;
   butterflyPoints = [] as paper.Point[];
   butterflies: paper.Group | null = null;
   interval: number | null = null;
   lastGazeTS = 0;
   mounted() {
-    const canvas = document.getElementById("myCanvas");
-
-    if (!canvas) {
-      return;
-    }
-    // Create an empty project and a view for the canvas:
-    paper.setup(canvas as HTMLCanvasElement);
-
-    paper.view.onResize = this.onResize;
-    paper.view.play();
-    paper.view.onFrame = (event: any) => {
-      this.frameEventEmmiter.emit("frame", event);
-    };
+    super.mounted()
+    this.paper.view.onResize = this.onResize;
+    this.paper.view.play();
+  }
+    init(): void {
     
     ipcRenderer.on("point", (_, data: GazeData) => {
     
       const rect = this.$el.getBoundingClientRect();
       this.onPoint(
-        new paper.Point({
+        new this.paper.Point({
           x: data.x - rect.x,
           y: data.y - rect.y,
         })
       );
     });
-    paper.view.onMouseDrag = (event: { point: { x: number; y: number } }) => {
-      const point = new Point({ x: event.point.x, y: event.point.y });
+    this.paper.view.onMouseDrag = (event: { point: { x: number; y: number } }) => {
+      const point = new this.paper.Point({ x: event.point.x, y: event.point.y });
       this.onPoint(point);
     };
-    this.frameEventEmmiter.on("frame", () => {
-      if (this.flower) {
-        this.flower.rotate(2);
-      }
-      this.drawButterflies();
-    });
     this.interval = +setInterval(() => {
       this.nextStep(false);
       if (this.gameover) {
@@ -68,6 +53,14 @@ export default class CanvasButterfly extends Game {
       }
     }, 1000);
     this.drawFlowers();
+    }
+
+
+  onFrame(){
+      if (this.flower) {
+        this.flower.rotate(2);
+      }
+      this.drawButterflies();
   }
   onPoint(point: paper.Point) {
     this.butterflyPoints.push(point);
@@ -86,26 +79,26 @@ export default class CanvasButterfly extends Game {
       this.butterflies.children.forEach((c) => c.remove());
       this.butterflies.remove();
     }
-    this.butterflies = new paper.Group();
+    this.butterflies = new this.paper.Group();
 
     for (let index = 0; index < this.butterflyPoints.length; index++) {
       const point = this.butterflyPoints[index];
       const prevPoint = this.butterflyPoints[index - 1];
-      const butterfly = new paper.Raster({
+      const butterfly = new this.paper.Raster({
         source: "/images/butterfly.png",
-        size: new paper.Size(25, 25),
+        size: new this.paper.Size(25, 25),
       });
       if (prevPoint) butterfly.rotate(prevPoint.subtract(point).angle + 90);
-      //   butterfly.fillColor = new paper.Color('red')
+      //   butterfly.fillColor = new this.paper.Color('red')
       butterfly.position = point as paper.Point;
       this.butterflies.addChild(butterfly);
     }
   }
   drawFlowers() {
     if (this.flower) this.flower.remove();
-    const point = new paper.Point(
-      Math.random() * paper.view.size.width * 0.8,
-      Math.random() * paper.view.size.height * 0.8
+    const point = new this.paper.Point(
+      Math.random() * this.paper.view.size.width * 0.8,
+      Math.random() * this.paper.view.size.height * 0.8
     );
     this.flower = this.getFlower();
     const flower = this.flower;
@@ -114,15 +107,15 @@ export default class CanvasButterfly extends Game {
   getFlower() {
     const size = 250 / (this.points * 0.2 + 1);
 
-    const romashka = new paper.Raster({
+    const romashka = new this.paper.Raster({
       source: "/images/romashka.png",
-      size: new paper.Size(size, size),
+      size: new this.paper.Size(size, size),
     });
     return romashka;
   }
 
   onResize() {
-    //   paper.view.clear
+    //   this.paper.view.clear
   }
 }
 </script>

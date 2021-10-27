@@ -1,6 +1,6 @@
 <template>
   <section>
-    <canvas id="myCanvas" resize></canvas>
+    <canvas ref="myCanvas" resize></canvas>
   </section>
 </template>
 
@@ -13,9 +13,12 @@ import paper from "paper";
 import { Color, Group, Path, Point, Size } from "paper/dist/paper-core";
 import { EventEmitter } from "events";
 import { ipcRenderer } from "electron";
+import { EyeFilter } from "@/EyeFilters/EyeFilter";
+import { MiddleValueFilter } from "@/EyeFilters/MiddleValueFilter";
+import { CanvasGame } from "../CanvasGame";
 
 @Component
-export default class Arkanoid extends Game {
+export default class Arkanoid extends CanvasGame {
   static id = "Arkanoid";
   static title = "Звездный теннис";
   static description = "Арканоид";
@@ -29,8 +32,14 @@ export default class Arkanoid extends Game {
   celsCount = 6;
   lifes = 2;
   maxSteps = this.rowsCount * this.celsCount * this.lifes;
-  speed = 2;
+  speed = 1.25;
+  deckSpeed = 4;
   angle = -(Math.PI / 0.2 + Math.PI / 4);
+  controlls = {
+    left: null as paper.PathItem | null,
+    right: null as paper.PathItem | null,
+    move: 0,
+  };
   getBallVector() {
     return new Point(Math.sin(this.angle), Math.cos(this.angle)).multiply(
       this.speed
@@ -40,6 +49,7 @@ export default class Arkanoid extends Game {
   SIZES = {
     frameWidth: 0,
     frameHeight: 0,
+    frameBold: 0,
     deckWidth: 0,
     brickWidth: 0,
     brickHeight: 0,
@@ -47,31 +57,25 @@ export default class Arkanoid extends Game {
   };
   bricks: paper.Group | null = null;
 
+  filter: EyeFilter = new MiddleValueFilter(3);
+
   mounted() {
-    const canvas = document.getElementById("myCanvas");
-
-    if (!canvas) {
-      return;
-    }
-    // Create an empty project and a view for the canvas:
-    paper.setup(canvas as HTMLCanvasElement);
-
+    super.mounted();
+  }
+  init() {
     this.SIZES.frameWidth = this.units.vw(60);
     this.SIZES.frameHeight = this.units.vh(80);
+    this.SIZES.frameBold = this.units.vw(1);
     this.SIZES.deckWidth = this.units.vw(10);
     this.SIZES.brickWidth = this.units.vw(3);
     this.SIZES.brickHeight = this.units.vw(1.25);
     this.SIZES.ballRadius = this.units.vw(0.4);
 
-    paper.view.onResize = this.onResize;
-    paper.view.play();
-    paper.view.onFrame = (event: any) => {
-      this.onFrame();
-      this.frameEventEmmiter.emit("frame", event);
-    };
+    this.paper.view.onResize = this.onResize;
     this.gameX = this.units.vw(50);
 
     this.drawFrames();
+    this.drawControlls();
     this.drawBricks();
     this.coins = new paper.Group();
     this.ball = new paper.Path.Circle(
@@ -80,35 +84,101 @@ export default class Arkanoid extends Game {
     );
     this.ball.fillColor = new Color("red");
 
-    // this.frameEventEmmiter.on("frame", this.onFrame);
-
-    paper.view.onMouseDrag = (event: { point: paper.Point }) => {
-      this.setGameX(event.point.x);
+    this.paper.view.onMouseMove = (event: { point: paper.Point }) => {
+      const point = event.point;
+      if (this.controlls.left && this.controlls.left.bounds.contains(point)) {
+        this.controlls.move = -1;
+      } else if (
+        this.controlls.right &&
+        this.controlls.right.bounds.contains(point)
+      ) {
+        this.controlls.move = 1;
+      } else {
+        this.controlls.move = 0;
+      }
     };
     ipcRenderer.on("point", (_, data: GazeData) => {
       const rect = this.$el.getBoundingClientRect();
-      this.setGameX(data.x - rect.x);
+      const point = new Point(data.x, data.y).subtract(
+        new Point(rect.x, rect.y)
+      );
+      if (this.controlls.left && this.controlls.left.bounds.contains(point)) {
+        this.controlls.move = -1;
+      } else if (
+        this.controlls.right &&
+        this.controlls.right.bounds.contains(point)
+      ) {
+        this.controlls.move = 1;
+      } else {
+        this.controlls.move = 0;
+      }
     });
   }
+  drawControlls() {
+    const sq = this.units.vw(4);
+    this.controlls.left = new paper.Path.Rectangle(
+      new Point(
+        this.units.vw(50) - this.SIZES.frameWidth / 2 + this.SIZES.frameBold,
+        this.units.vh(50) + this.SIZES.frameHeight / 2 - sq
+      ),
+      new Point(
+        this.units.vw(50) -
+          this.SIZES.frameWidth / 2 +
+          +this.SIZES.frameBold +
+          sq,
+        this.units.vh(50) + this.SIZES.frameHeight / 2
+      )
+    );
 
-  setGameX(value: number) {
+    this.controlls.right = new paper.Path.Rectangle(
+      new Point(
+        this.units.vw(50) + this.SIZES.frameWidth / 2,
+        this.units.vh(50) + this.SIZES.frameHeight / 2 - sq
+      ),
+      new Point(
+        this.units.vw(50) + this.SIZES.frameWidth / 2 - sq,
+        this.units.vh(50) + this.SIZES.frameHeight / 2
+      )
+    );
+    this.controlls.left.fillColor = this.controlls.right.fillColor = new Color(
+      "red"
+    );
+  }
+
+  setGameX() {
+    if (!this.deck) return;
     const min =
-      this.units.vw(50) - this.SIZES.frameWidth / 2 + this.SIZES.deckWidth / 2;
+      this.units.vw(50) -
+      this.SIZES.frameWidth / 2 +
+      this.SIZES.deckWidth / 2 +
+      this.SIZES.frameBold;
     const max =
       this.units.vw(50) + this.SIZES.frameWidth / 2 - this.SIZES.deckWidth / 2;
-    if (value < min) {
-      this.gameX = min;
-    } else if (value > max) {
-      this.gameX = max;
-    } else {
-      this.gameX = value;
+    const value = this.deck.position.x;
+    
+    if (this.controlls.move == -1) {
+      const newValue = value - this.deckSpeed;
+      if (newValue < min) {
+        this.gameX = min;
+      } else {
+        this.gameX = newValue;
+      }
     }
+    if (this.controlls.move == 1) {
+      const newValue = value + this.deckSpeed;
+      if (newValue > max) {
+        this.gameX = max;
+      } else {
+        this.gameX = newValue;
+      }
+    }
+      this.deck.position = new Point(this.gameX, this.units.vh(80));
+
   }
 
   onFrame() {
-    if (this.gameover) {
-      return;
-    }
+    
+    this.setGameX();
     if (this.deck)
       this.deck.position = new Point(this.gameX, this.units.vh(80));
     if (this.frameGroup)
@@ -209,11 +279,13 @@ export default class Arkanoid extends Game {
       ),
       new Point(
         this.units.vw(50) + this.SIZES.deckWidth / 2,
-        this.units.vh(80) + this.units.vmin(2)
+        this.units.vh(80) + this.SIZES.frameBold
       )
     );
     this.deck.data.name = "deck";
+
     this.frameGroup = new paper.Group([
+      //top frame
       new paper.Path.Rectangle(
         new Point(
           this.units.vw(50) - this.SIZES.frameWidth / 2,
@@ -221,26 +293,28 @@ export default class Arkanoid extends Game {
         ),
         new Point(
           this.units.vw(50) + this.SIZES.frameWidth / 2,
-          this.units.vh(50) - this.SIZES.frameHeight / 2 + this.units.vmin(2)
+          this.units.vh(50) - this.SIZES.frameHeight / 2 + this.SIZES.frameBold
         )
       ),
+      //left frame
       new paper.Path.Rectangle(
         new Point(
           this.units.vw(50) - this.SIZES.frameWidth / 2,
           this.units.vh(50) - this.SIZES.frameHeight / 2
         ),
         new Point(
-          this.units.vw(50) - this.SIZES.frameWidth / 2 + this.units.vmin(2),
+          this.units.vw(50) - this.SIZES.frameWidth / 2 + this.SIZES.frameBold,
           this.units.vh(50) + this.SIZES.frameHeight / 2
         )
       ),
+      //right frame
       new paper.Path.Rectangle(
         new Point(
           this.units.vw(50) + this.SIZES.frameWidth / 2,
           this.units.vh(50) - this.SIZES.frameHeight / 2
         ),
         new Point(
-          this.units.vw(50) + this.SIZES.frameWidth / 2 + this.units.vmin(2),
+          this.units.vw(50) + this.SIZES.frameWidth / 2 + this.SIZES.frameBold,
           this.units.vh(50) + this.SIZES.frameHeight / 2
         )
       ),
@@ -272,35 +346,11 @@ export default class Arkanoid extends Game {
         this.bricks.addChild(brick);
       }
     }
-    this.bricks.position = paper.view.center.add(
+    this.bricks.position = this.paper.view.center.add(
       new Point(0, -this.units.vh(20))
     );
   }
 
-  get units() {
-    const vw = paper.view.viewSize.width / 100;
-    const vh = paper.view.viewSize.height / 100;
-    const units = {
-      vw,
-      vh,
-      vmax: vw > vh ? vw : vh,
-      vmin: vw < vh ? vw : vh,
-    };
-    return {
-      vw(number: number) {
-        return Math.floor(units.vw * number);
-      },
-      vh(number: number) {
-        return Math.floor(units.vh * number);
-      },
-      vmin(number: number) {
-        return Math.floor(units.vmin * number);
-      },
-      vmax(number: number) {
-        return Math.floor(units.vmax * number);
-      },
-    };
-  }
 
   onResize() {
     //
