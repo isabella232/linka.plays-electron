@@ -88,7 +88,11 @@ export default class JustYouWait extends CanvasGame {
         } else {
           if (egg.falling) {
             this.eggs.shift();
+
+          }
+          else{
             this.nextStep();
+
           }
           egg.fall();
         }
