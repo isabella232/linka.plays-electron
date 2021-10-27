@@ -29,6 +29,7 @@ export default class JustYouWait extends CanvasGame {
   controlls: paper.Group | null = null;
   lastEggCreateion = 0;
   interval: number|null = null;
+  speed = 2000;
 
   mounted() {
     super.mounted();
@@ -136,7 +137,8 @@ export default class JustYouWait extends CanvasGame {
 
    this.interval =+ setTimeout(() => {
       if (!this.gameover) this.tick();
-    }, 2000);
+    }, this.speed);
+    this.speed*=0.9
   }
 }
 </script>
