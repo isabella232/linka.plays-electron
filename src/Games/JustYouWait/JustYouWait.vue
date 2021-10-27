@@ -104,16 +104,17 @@ export default class JustYouWait extends CanvasGame {
   }
   tick() {
     if (this.gameover) return;
+    let shift = false;
     for (const egg of this.eggs) {
       egg.move();
       if (egg.life === 5) {
         if (egg.side === this.wolf?.side && !egg.falling) {
           egg.catch();
           this.addPoint();
-          this.eggs.shift();
+          shift = true
         } else {
           if (egg.falling) {
-            this.eggs.shift();
+          shift = true
           } else {
             this.nextStep();
           }
@@ -121,6 +122,7 @@ export default class JustYouWait extends CanvasGame {
         }
       }
     }
+    if(shift) this.eggs.shift()
     this.lastEggCreateion--;
     if (Math.random() > 0.5 && this.lastEggCreateion <= 0) {
       this.eggs.push(new Egg(this.paper, Math.round(Math.random() * 3)));
