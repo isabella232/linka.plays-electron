@@ -177,9 +177,7 @@ export default class Arkanoid extends CanvasGame {
   }
 
   onFrame() {
-    if (this.gameover) {
-      return;
-    }
+    
     this.setGameX();
     if (this.deck)
       this.deck.position = new Point(this.gameX, this.units.vh(80));
