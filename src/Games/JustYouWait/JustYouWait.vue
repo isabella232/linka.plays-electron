@@ -27,6 +27,7 @@ export default class JustYouWait extends CanvasGame {
   ts = 0;
 
   eggs: Egg[] = [];
+  controlls: paper.Group | null = null;
   lastEggCreateion = 0;
 
   mounted() {
@@ -39,6 +40,7 @@ export default class JustYouWait extends CanvasGame {
       source: "/images/JustYouWait/background.png",
     });
     background.position = this.paper.view.center;
+    this.createControlls(background);
 
     this.createWolf();
 
@@ -57,21 +59,42 @@ export default class JustYouWait extends CanvasGame {
     });
     this.tick();
   }
+  createControlls(background: paper.Raster) {
+    console.log(background);
+
+    this.controlls = new paper.Group();
+    this.controlls.addChild(
+      new this.paper.Path.Rectangle(
+        this.paper.view.bounds.topLeft,
+        background.bounds.topLeft
+      )
+    );
+    this.controlls.addChild(
+      new this.paper.Path.Rectangle(
+        this.paper.view.bounds.topRight,
+        background.bounds.topRight
+      )
+    );
+    this.controlls.addChild(
+      new this.paper.Path.Rectangle(
+        this.paper.view.bounds.bottomLeft,
+        background.bounds.bottomLeft
+      )
+    );
+    this.controlls.addChild(
+      new this.paper.Path.Rectangle(
+        this.paper.view.bounds.bottomRight,
+        background.bounds.bottomRight
+      )
+    );
+
+    this.controlls.fillColor = new paper.Color("#CC1111");
+  }
   onPoint(point: paper.Point) {
-    let state: number | undefined = undefined;
-    if (point.x < this.units.vw(33) && point.y < this.units.vh(33)) {
-      state = 0;
-    }
-    if (point.x > this.units.vw(66) && point.y < this.units.vh(33)) {
-      state = 1;
-    }
-    if (point.x < this.units.vw(33) && point.y > this.units.vh(66)) {
-      state = 2;
-    }
-    if (point.x > this.units.vw(66) && point.y > this.units.vh(66)) {
-      state = 3;
-    }
-    if (state !== undefined) this.wolfState = state;
+    let state = this.controlls?.children.findIndex((controll) => {
+      return controll.contains(point);
+    });
+    if (state&& state !==-1) this.wolfState = state;
   }
   onFrame(): void {
     if (this.wolf)
@@ -88,11 +111,8 @@ export default class JustYouWait extends CanvasGame {
         } else {
           if (egg.falling) {
             this.eggs.shift();
-
-          }
-          else{
+          } else {
             this.nextStep();
-
           }
           egg.fall();
         }
