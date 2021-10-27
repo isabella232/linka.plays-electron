@@ -15,16 +15,15 @@ import { ipcRenderer } from "electron";
 import { CanvasGame } from "../CanvasGame";
 import { Point, Size } from "paper/dist/paper-core";
 import { Egg } from "./Egg";
+import { Wolf } from "./Wolf";
 
 @Component
 export default class JustYouWait extends CanvasGame {
   static id = "JustYouWait";
   static title = "Волк и яйца";
   static description = "...";
-  wolfState = 0;
-  wolf: paper.Raster | null = null;
 
-  ts = 0;
+  wolf: Wolf | null = null;
 
   eggs: Egg[] = [];
   controlls: paper.Group | null = null;
@@ -41,9 +40,7 @@ export default class JustYouWait extends CanvasGame {
     });
     background.position = this.paper.view.center;
     this.createControlls(background);
-
-    this.createWolf();
-
+    this.wolf = new Wolf(this.paper);
     this.paper.view.onMouseDrag = (event: { point: paper.Point }) => {
       const point = event.point;
       this.onPoint(point);
@@ -60,8 +57,6 @@ export default class JustYouWait extends CanvasGame {
     this.tick();
   }
   createControlls(background: paper.Raster) {
-    console.log(background);
-
     this.controlls = new paper.Group();
     this.controlls.addChild(
       new this.paper.Path.Rectangle(
@@ -94,17 +89,18 @@ export default class JustYouWait extends CanvasGame {
     let state = this.controlls?.children.findIndex((controll) => {
       return controll.contains(point);
     });
-    if (state&& state !==-1) this.wolfState = state;
+    if (state && state !== -1) {
+      this.wolf?.setSide(state);
+    }
   }
   onFrame(): void {
-    if (this.wolf)
-      this.wolf.source = `/images/JustYouWait/wolf-${this.wolfState}.png`;
+    //
   }
   tick() {
     for (const egg of this.eggs) {
       egg.move();
       if (egg.life === 5) {
-        if (egg.side === this.wolfState && !egg.falling) {
+        if (egg.side === this.wolf?.side && !egg.falling) {
           egg.catch();
           this.addPoint();
           this.eggs.shift();
@@ -127,14 +123,6 @@ export default class JustYouWait extends CanvasGame {
     setTimeout(() => {
       if (!this.gameover) this.tick();
     }, 2000);
-  }
-
-  createWolf() {
-    this.wolf = new this.paper.Raster({
-      source: "/images/JustYouWait/wolf-0.png",
-      //   size: new this.paper.Size(100, 100),
-    });
-    this.wolf.position = this.paper.view.center.add(new Point(0, 120));
   }
 }
 </script>
