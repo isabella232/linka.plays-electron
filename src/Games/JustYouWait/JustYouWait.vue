@@ -94,10 +94,10 @@ export default class JustYouWait extends CanvasGame {
         }
       }
     }
-    this.lastEggCreateion++;
-    if (Math.random() > 0.5 && this.lastEggCreateion === 2) {
+    this.lastEggCreateion--;
+    if (Math.random() > 0.5 && this.lastEggCreateion <= 0) {
       this.eggs.push(new Egg(this.paper, Math.round(Math.random() * 3)));
-      this.lastEggCreateion = 0;
+      this.lastEggCreateion = 3;
     }
 
     setTimeout(() => {
