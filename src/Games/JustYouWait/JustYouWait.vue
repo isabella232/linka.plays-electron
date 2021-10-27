@@ -55,6 +55,7 @@ export default class JustYouWait extends CanvasGame {
       );
       this.onPoint(point);
     });
+    this.tick();
   }
   onPoint(point: paper.Point) {
     let state: number | undefined = undefined;
@@ -71,7 +72,6 @@ export default class JustYouWait extends CanvasGame {
       state = 3;
     }
     if (state !== undefined) this.wolfState = state;
-    this.tick();
   }
   onFrame(): void {
     if (this.wolf)
