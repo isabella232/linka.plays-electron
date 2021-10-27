@@ -27,6 +27,7 @@ export default class JustYouWait extends CanvasGame {
   ts = 0;
 
   eggs: Egg[] = [];
+  lastEggCreateion = 0;
 
   mounted() {
     super.mounted();
@@ -69,18 +70,12 @@ export default class JustYouWait extends CanvasGame {
     if (point.x > this.units.vw(66) && point.y > this.units.vh(66)) {
       state = 3;
     }
-    if (state!==undefined) this.wolfState = state;
+    if (state !== undefined) this.wolfState = state;
+    this.tick();
   }
   onFrame(): void {
     if (this.wolf)
       this.wolf.source = `/images/JustYouWait/wolf-${this.wolfState}.png`;
-
-    const currentTS = +new Date();
-
-    if (currentTS - this.ts > 1500) {
-      this.ts = currentTS;
-      this.tick();
-    }
   }
   tick() {
     for (const egg of this.eggs) {
@@ -99,8 +94,15 @@ export default class JustYouWait extends CanvasGame {
         }
       }
     }
-    if (Math.random() > 0.8)
+    this.lastEggCreateion++;
+    if (Math.random() > 0.5 && this.lastEggCreateion === 2) {
       this.eggs.push(new Egg(this.paper, Math.round(Math.random() * 3)));
+      this.lastEggCreateion = 0;
+    }
+
+    setTimeout(() => {
+      if (!this.gameover) this.tick();
+    }, 2000);
   }
 
   createWolf() {
