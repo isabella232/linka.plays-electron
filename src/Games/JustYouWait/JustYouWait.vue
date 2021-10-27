@@ -95,7 +95,7 @@ export default class JustYouWait extends CanvasGame {
     let state = this.controlls?.children.findIndex((controll) => {
       return controll.contains(point);
     });
-    if (state && state !== -1) {
+    if (state!==undefined && state !== -1) {
       this.wolf?.setSide(state);
     }
   }
