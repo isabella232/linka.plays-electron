@@ -43,10 +43,7 @@ export default class JustYouWait extends CanvasGame {
 
     this.paper.view.onMouseDrag = (event: { point: paper.Point }) => {
       const point = event.point;
-      let state = 0;
-      if (point.x > this.units.vw(50)) state += 1;
-      if (point.y > this.units.vh(50)) state += 2;
-      this.wolfState = state;
+      this.onPoint(point);
     };
 
     ipcRenderer.on("point", (_, data: GazeData) => {
@@ -55,11 +52,24 @@ export default class JustYouWait extends CanvasGame {
       const point = new Point(data.x, data.y).subtract(
         new Point(rect.x, rect.y)
       );
-      let state = 0;
-      if (point.x > this.units.vw(50)) state += 1;
-      if (point.y > this.units.vh(50)) state += 2;
-      this.wolfState = state;
+      this.onPoint(point);
     });
+  }
+  onPoint(point: paper.Point) {
+    let state: number | undefined = undefined;
+    if (point.x < this.units.vw(33) && point.y < this.units.vh(33)) {
+      state = 0;
+    }
+    if (point.x > this.units.vw(66) && point.y < this.units.vh(33)) {
+      state = 1;
+    }
+    if (point.x < this.units.vw(33) && point.y > this.units.vh(66)) {
+      state = 2;
+    }
+    if (point.x > this.units.vw(66) && point.y > this.units.vh(66)) {
+      state = 3;
+    }
+    if (state!==undefined) this.wolfState = state;
   }
   onFrame(): void {
     if (this.wolf)
@@ -67,7 +77,7 @@ export default class JustYouWait extends CanvasGame {
 
     const currentTS = +new Date();
 
-    if (currentTS - this.ts > 2000) {
+    if (currentTS - this.ts > 1500) {
       this.ts = currentTS;
       this.tick();
     }
