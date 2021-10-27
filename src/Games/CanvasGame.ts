@@ -16,7 +16,6 @@ export abstract class CanvasGame extends Game {
         })
         setTimeout(() => {
             this.init()
-
         }, 0);
 
     }
