@@ -1,0 +1,121 @@
+<template>
+  <section>
+    <canvas ref="myCanvas" resize></canvas>
+  </section>
+</template>
+
+<script lang="ts">
+import { GazeData } from "tobiiee/build/GazeData";
+import Vue from "vue";
+import paper from "paper";
+import Component from "vue-class-component";
+// import { Color, Path, Point } from "this.paper/dist/this.paper-core";
+import { EventEmitter } from "events";
+import { ipcRenderer } from "electron";
+import { CanvasGame } from "../CanvasGame";
+import { Point } from "paper/dist/paper-core";
+import { Egg } from "./Egg";
+
+@Component
+export default class JustYouWait extends CanvasGame {
+  static id = "JustYouWait";
+  static title = "Волк и яйца";
+  static description = "...";
+
+  wolfState = 0;
+  wolf: paper.Raster | null = null;
+
+  ts = 0;
+
+  eggs: Egg[] = [];
+  mounted() {
+    super.mounted();
+  }
+  init() {
+    console.log("init");
+
+    const background = new this.paper.Raster({
+      source: "/images/JustYouWait/background.png",
+    });
+    background.position = this.paper.view.center;
+
+    // const egg = new this.paper.Raster({
+    //   source: "/images/JustYouWait/egg.png",
+    // });
+    // egg.position = this.paper.view.center.add(this.eggInitPosition);
+
+    // egg.rotate(45);
+
+    this.createWolf();
+
+    this.paper.view.onMouseDrag = (event: { point: paper.Point }) => {
+      const point = event.point;
+      let state = 0;
+      if (point.x > this.units.vw(50)) state += 1;
+      if (point.y > this.units.vh(50)) state += 2;
+      this.wolfState = state;
+    };
+
+    ipcRenderer.on("point", (_, data: GazeData) => {
+      const rect = this.$el.getBoundingClientRect();
+      const point = new Point(data.x, data.y).subtract(
+        new Point(rect.x, rect.y)
+      );
+      let state = 0;
+      if (point.x > this.units.vw(50)) state += 1;
+      if (point.y > this.units.vh(50)) state += 2;
+      this.wolfState = state;
+    });
+  }
+  onFrame(): void {
+    if (this.wolf)
+      this.wolf.source = `/images/JustYouWait/wolf-${this.wolfState}.png`;
+
+    const currentTS = +new Date();
+
+    if (currentTS - this.ts > 2000) {
+      this.ts = currentTS;
+      this.tick();
+    }
+  }
+  tick() {
+    for (const egg of this.eggs) {
+      egg.move();
+      if (egg.life === 5) {
+        if (egg.side === this.wolfState && !egg.falling) {
+          egg.catch();
+          this.addPoint();
+          this.eggs.shift();
+        } else {
+          if (egg.falling) {
+            this.eggs.shift();
+            this.nextStep();
+          }
+          egg.fall();
+        }
+      }
+    }
+    if (Math.random() > 0.8)
+      this.eggs.push(new Egg(this.paper, Math.round(Math.random() * 3)));
+  }
+
+  createWolf() {
+    this.wolf = new this.paper.Raster({
+      source: "/images/JustYouWait/wolf-0.png",
+      //   size: new this.paper.Size(100, 100),
+    });
+    this.wolf.position = this.paper.view.center.add(new Point(0, 120));
+  }
+}
+</script>
+
+<style scoped>
+section {
+  height: 100%;
+}
+canvas {
+  width: 100%;
+  height: calc(100vh - 64px);
+  /* background: #000; */
+}
+</style>
