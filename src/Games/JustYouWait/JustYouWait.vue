@@ -28,15 +28,15 @@ export default class JustYouWait extends CanvasGame {
   eggs: Egg[] = [];
   controlls: paper.Group | null = null;
   lastEggCreateion = 0;
-  interval: number|null = null;
+  interval: number | null = null;
   speed = 2000;
 
   mounted() {
     super.mounted();
   }
-  unmounted(){
+  unmounted() {
     //todo fix
-    clearTimeout(this.interval as any)
+    clearTimeout(this.interval as any);
   }
   init() {
     console.log("init");
@@ -65,7 +65,7 @@ export default class JustYouWait extends CanvasGame {
   createControlls(background: paper.Raster) {
     if (background.width < 10) {
       setTimeout(() => {
-        this.createControlls;
+        this.createControlls(background);
       }, 100);
       return;
     }
@@ -101,7 +101,7 @@ export default class JustYouWait extends CanvasGame {
     let state = this.controlls?.children.findIndex((controll) => {
       return controll.contains(point);
     });
-    if (state!==undefined && state !== -1) {
+    if (state !== undefined && state !== -1) {
       this.wolf?.setSide(state);
     }
   }
@@ -117,28 +117,28 @@ export default class JustYouWait extends CanvasGame {
         if (egg.side === this.wolf?.side && !egg.falling) {
           egg.catch();
           this.addPoint();
-          shift = true
+          shift = true;
         } else {
           if (egg.falling) {
-          shift = true
+            shift = true;
           } else {
             this.nextStep();
+            this.speed *= 0.95;
           }
           egg.fall();
         }
       }
     }
-    if(shift) this.eggs.shift()
+    if (shift) this.eggs.shift();
     this.lastEggCreateion--;
     if (Math.random() > 0.5 && this.lastEggCreateion <= 0) {
       this.eggs.push(new Egg(this.paper, Math.round(Math.random() * 3)));
       this.lastEggCreateion = 2;
     }
 
-   this.interval =+ setTimeout(() => {
+    this.interval = +setTimeout(() => {
       if (!this.gameover) this.tick();
     }, this.speed);
-    this.speed*=0.9
   }
 }
 </script>
