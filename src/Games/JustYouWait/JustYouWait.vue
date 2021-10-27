@@ -28,9 +28,14 @@ export default class JustYouWait extends CanvasGame {
   eggs: Egg[] = [];
   controlls: paper.Group | null = null;
   lastEggCreateion = 0;
+  interval: number|null = null;
 
   mounted() {
     super.mounted();
+  }
+  unmounted(){
+    //todo fix
+    clearTimeout(this.interval as any)
   }
   init() {
     console.log("init");
@@ -129,7 +134,7 @@ export default class JustYouWait extends CanvasGame {
       this.lastEggCreateion = 2;
     }
 
-    setTimeout(() => {
+   this.interval =+ setTimeout(() => {
       if (!this.gameover) this.tick();
     }, 2000);
   }
