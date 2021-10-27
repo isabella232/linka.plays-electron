@@ -21,7 +21,6 @@ export default class JustYouWait extends CanvasGame {
   static id = "JustYouWait";
   static title = "Волк и яйца";
   static description = "...";
-  deadZone: paper.PathItem | null = null;
   wolfState = 0;
   wolf: paper.Raster | null = null;
 
@@ -41,16 +40,9 @@ export default class JustYouWait extends CanvasGame {
     background.position = this.paper.view.center;
 
     this.createWolf();
-    this.deadZone = new this.paper.Path.Rectangle(
-      new Point(0, 0),
-      new Size(500, 200)
-    );
-    this.deadZone.position = this.paper.view.center;
-    this.deadZone.strokeColor = this.paper.Color.random();
 
     this.paper.view.onMouseDrag = (event: { point: paper.Point }) => {
       const point = event.point;
-      if (this.deadZone?.contains(point)) return;
       let state = 0;
       if (point.x > this.units.vw(50)) state += 1;
       if (point.y > this.units.vh(50)) state += 2;
@@ -63,7 +55,6 @@ export default class JustYouWait extends CanvasGame {
       const point = new Point(data.x, data.y).subtract(
         new Point(rect.x, rect.y)
       );
-      if (this.deadZone?.contains(point)) return;
       let state = 0;
       if (point.x > this.units.vw(50)) state += 1;
       if (point.y > this.units.vh(50)) state += 2;
