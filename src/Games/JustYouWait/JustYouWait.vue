@@ -57,12 +57,11 @@ export default class JustYouWait extends CanvasGame {
     this.tick();
   }
   createControlls(background: paper.Raster) {
-    if(background.width<10){
-
+    if (background.width < 10) {
       setTimeout(() => {
-        this.createControlls
+        this.createControlls;
       }, 100);
-      return
+      return;
     }
     this.controlls = new paper.Group();
     this.controlls.addChild(
@@ -104,6 +103,7 @@ export default class JustYouWait extends CanvasGame {
     //
   }
   tick() {
+    if (this.gameover) return;
     for (const egg of this.eggs) {
       egg.move();
       if (egg.life === 5) {
@@ -124,7 +124,7 @@ export default class JustYouWait extends CanvasGame {
     this.lastEggCreateion--;
     if (Math.random() > 0.5 && this.lastEggCreateion <= 0) {
       this.eggs.push(new Egg(this.paper, Math.round(Math.random() * 3)));
-      this.lastEggCreateion = 3;
+      this.lastEggCreateion = 2;
     }
 
     setTimeout(() => {
