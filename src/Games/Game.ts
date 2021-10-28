@@ -1,28 +1,10 @@
 import Vue from "vue";
 
-//fake for tests
-let MAudio: any = undefined;
-try {
-    MAudio = Audio
-} catch (error) {
-    MAudio = class FakeAudio {
-        constructor(src: string) {
-            //
-        }
-        play() {
-            //
-        }
-        pause() {
-            //
-        }
-        currentTime = 0;
-    }
-}
 
 export abstract class Game extends Vue {
     sounds = {
-        good: new MAudio('/sounds/good.wav'),
-        newTask: new MAudio('/sounds/newTask.wav'),
+        good: new Audio('/sounds/good.wav'),
+        newTask: new Audio('/sounds/newTask.wav'),
     }
     static id: string;
     points = 0;
