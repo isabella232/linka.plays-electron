@@ -26,8 +26,7 @@ export default class HoldCircle extends CanvasGame {
   circle: paper.Path.Circle | null = null;
   text: paper.TextItem | null = null;
 
-  sounds = {
-    ...super.sounds,
+  gameSounds = {
     circle_welcome: new Audio("/voiceover/files/circle_welcome.mp3"),
     circle_5: new Audio("/voiceover/files/circle_5.mp3"),
     circle_4: new Audio("/voiceover/files/circle_4.mp3"),
@@ -37,7 +36,7 @@ export default class HoldCircle extends CanvasGame {
     circle_done: new Audio("/voiceover/files/circle_done.mp3"),
     circle_fall: new Audio("/voiceover/files/circle_fall.mp3"),
   };
-  maxSteps = 5;
+  maxSteps = 6;
   nextStep(){
   super.nextStep();
     if (this.text) this.text.content = this.step.toString();
@@ -69,13 +68,13 @@ export default class HoldCircle extends CanvasGame {
   async start() {
     this.maxDifferent = 0;
     this.status = 'start'
-    await this.playAudio(this.sounds.circle_welcome);
+    await this.playAudio(this.gameSounds.circle_welcome);
     const sounds = [
-      this.sounds.circle_1,
-      this.sounds.circle_2,
-      this.sounds.circle_3,
-      this.sounds.circle_4,
-      this.sounds.circle_5,
+      this.gameSounds.circle_1,
+      this.gameSounds.circle_2,
+      this.gameSounds.circle_3,
+      this.gameSounds.circle_4,
+      this.gameSounds.circle_5,
     ];
     for (let i = 0; i < 5; i++) {
       this.nextStep();
@@ -85,13 +84,14 @@ export default class HoldCircle extends CanvasGame {
         await this.fall();
         return;
       }
+      await delay(200)
     }
-    await this.playAudio(this.sounds.circle_done);
+    await this.playAudio(this.gameSounds.circle_done);
   }
 
   async fall() {
     this.status = "fall";
-    await this.playAudio(this.sounds.circle_fall);
+    await this.playAudio(this.gameSounds.circle_fall);
     this.restart();
   }
 

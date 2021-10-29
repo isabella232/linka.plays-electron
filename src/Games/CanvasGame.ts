@@ -23,8 +23,8 @@ export abstract class CanvasGame extends Game {
     abstract onFrame(): void;
 
     restart() {
-        super.restart()
         this.paper.project.activeLayer.removeChildren();
+        super.restart()
     }
 
 
