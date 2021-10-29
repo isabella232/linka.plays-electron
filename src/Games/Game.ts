@@ -5,7 +5,7 @@ export abstract class Game extends Vue {
     sounds = {
         good: new Audio('/sounds/good.wav'),
         newTask: new Audio('/sounds/newTask.wav'),
-    }
+    }   
     static id: string;
     points = 0;
     step = 0;

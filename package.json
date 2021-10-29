@@ -18,6 +18,7 @@
   },
   "main": "background.js",
   "dependencies": {
+    "axios": "^0.24.0",
     "core-js": "^3.6.5",
     "delay": "^5.0.0",
     "electron-updater": "^4.3.9",

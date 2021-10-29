@@ -2,6 +2,7 @@ import { VueConstructor } from "vue";
 import CanvasButterfly from "./CanvasButterfly/CanvasButterfly.vue";
 import Arkanoid from "./Arkanoid/Arkanoid.vue";
 import JustYouWait from "./JustYouWait/JustYouWait.vue";
+import HoldCircle from "./HoldCircle/HoldCircle.vue";
 
 export class GamesManifest {
     private static _instance: GamesManifest | null;
@@ -13,6 +14,7 @@ export class GamesManifest {
     }
 
     games = {
+        HoldCircle,
         CanvasButterfly,
         Arkanoid,
         JustYouWait
