@@ -103,7 +103,7 @@ export default class HoldCircle extends CanvasGame {
     const text = new this.paper.PointText(
       this.paper.view.center.add(new Point(0, this.units.vh(50 / 4)))
     );
-    text.content = this.counter.toString();
+    text.content = this.step.toString();
     text.style.fontSize = this.units.vmin(50);
     text.style.justification = "center";
     text.fillColor = new this.paper.Color("red");
