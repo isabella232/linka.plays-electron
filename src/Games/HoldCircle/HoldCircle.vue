@@ -13,7 +13,7 @@ import Component from "vue-class-component";
 import { EventEmitter } from "events";
 import { ipcRenderer } from "electron";
 import { CanvasGame } from "../CanvasGame";
-import { Point } from "paper/dist/paper-core";
+import { Color, Point } from "paper/dist/paper-core";
 import delay from "delay";
 
 type Status = "start" | "tick" | "fall" | "finish";
@@ -37,9 +37,10 @@ export default class HoldCircle extends CanvasGame {
     circle_fall: new Audio("/voiceover/files/circle_fall.mp3"),
   };
   maxSteps = 6;
-  nextStep(){
-  super.nextStep();
+  nextStep() {
+    super.nextStep();
     if (this.text) this.text.content = this.step.toString();
+    this.drawStar(this.step - 1);
   }
   lastTS = 0;
   maxDifferent = 0;
@@ -67,7 +68,7 @@ export default class HoldCircle extends CanvasGame {
 
   async start() {
     this.maxDifferent = 0;
-    this.status = 'start'
+    this.status = "start";
     await this.playAudio(this.gameSounds.circle_welcome);
     const sounds = [
       this.gameSounds.circle_1,
@@ -80,11 +81,11 @@ export default class HoldCircle extends CanvasGame {
       this.nextStep();
       this.maxDifferent = 0;
       await this.playAudio(sounds[i]);
-      if (this.maxDifferent > 600||this.maxDifferent ===0) {
+      if (this.maxDifferent > 600 || this.maxDifferent === 0) {
         await this.fall();
         return;
       }
-      await delay(200)
+      await delay(200);
     }
     await this.playAudio(this.gameSounds.circle_done);
   }
@@ -93,6 +94,19 @@ export default class HoldCircle extends CanvasGame {
     this.status = "fall";
     await this.playAudio(this.gameSounds.circle_fall);
     this.restart();
+  }
+
+  drawStar(step: number) {
+    const star = new paper.Path.Star(
+      this.paper.view.center,
+      5,
+      this.units.vmin(5),
+      this.units.vmin(3)
+    );
+    star.fillColor = new Color("gold");
+    star.position = star.position
+      .add(new Point(0, -this.units.vh(35)))
+      .rotate((360 / 5) * step, this.paper.view.center);
   }
 
   onFrame(): void {
