@@ -40,6 +40,8 @@
       ref="gameInstance"
       @pointChanged="(points) => $emit('pointChanged', points)"
       @stepChanged="(points) => $emit('stepChanged', points)"
+
+      @restart="()=>restart()"
     />
   </div>
 </template>
@@ -61,11 +63,12 @@ gameShows=true
     return this.$store.getters.gameover;
   }
   restart(){
-    this.gameShows = false;
     (this.$refs.gameInstance as Game).resetScore()
+    this.gameShows = false;
 
     this.$nextTick(()=>{
       this.gameShows = true
+      
     })
   }
   created() {
