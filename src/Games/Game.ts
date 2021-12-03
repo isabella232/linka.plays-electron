@@ -58,7 +58,7 @@ export abstract class Game extends Vue {
             this.$emit('gameoover')
         }
     }
-    makeGameOver() {
+    makeGameOver(fall = false) {
         if (this.gameover) return;
         this.step = this.maxSteps;
         this.$store.commit('step', this.step)

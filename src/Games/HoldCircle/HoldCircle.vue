@@ -40,7 +40,7 @@ export default class HoldCircle extends CanvasGame {
   nextStep() {
     super.nextStep();
     if (this.text) this.text.content = this.step.toString();
-    this.drawStar(this.step - 1);
+  this.drawStar(this.step - 1);
   }
   lastTS = 0;
   maxDifferent = 0;

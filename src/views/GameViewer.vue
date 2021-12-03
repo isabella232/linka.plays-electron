@@ -63,13 +63,7 @@ gameShows=true
     return this.$store.getters.gameover;
   }
   restart(){
-    (this.$refs.gameInstance as Game).resetScore()
-    this.gameShows = false;
-
-    this.$nextTick(()=>{
-      this.gameShows = true
-      
-    })
+    window.location.reload()
   }
   created() {
     this.gameid = this.$router.currentRoute.params.gameid;

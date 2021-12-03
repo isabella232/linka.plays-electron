@@ -3,6 +3,7 @@ import CanvasButterfly from "./CanvasButterfly/CanvasButterfly.vue";
 import Arkanoid from "./Arkanoid/Arkanoid.vue";
 import JustYouWait from "./JustYouWait/JustYouWait.vue";
 import HoldCircle from "./HoldCircle/HoldCircle.vue";
+import CityTraffic from "./CityTraffic/CityTraffic.vue";
 
 export class GamesManifest {
     private static _instance: GamesManifest | null;
@@ -17,7 +18,8 @@ export class GamesManifest {
         HoldCircle,
         CanvasButterfly,
         Arkanoid,
-        JustYouWait
+        JustYouWait,
+        CityTraffic
     } as { [key in string]: VueConstructor };
 
     findById(gameid: string): VueConstructor | undefined {
